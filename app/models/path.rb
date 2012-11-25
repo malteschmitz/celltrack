@@ -1,3 +1,14 @@
+# == Schema Information
+#
+# Table name: paths
+#
+#  id            :integer          not null, primary key
+#  experiment_id :integer
+#  tree_id       :integer
+#  created_at    :datetime         not null
+#  updated_at    :datetime         not null
+#
+
 class Path < ActiveRecord::Base
   belongs_to :experiment
   belongs_to :tree
