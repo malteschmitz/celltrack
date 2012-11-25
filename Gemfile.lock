@@ -28,8 +28,11 @@ GEM
     activesupport (3.2.8)
       i18n (~> 0.6)
       multi_json (~> 1.0)
+    annotate (2.5.0)
+      rake
     arel (3.0.2)
     builder (3.0.4)
+    choice (0.1.6)
     coffee-rails (3.2.2)
       coffee-script (>= 2.2.0)
       railties (~> 3.2.0)
@@ -69,6 +72,11 @@ GEM
       activesupport (= 3.2.8)
       bundler (~> 1.0)
       railties (= 3.2.8)
+    rails-erd (1.0.0)
+      activerecord (>= 3.0)
+      activesupport (>= 3.0)
+      choice (~> 0.1.6)
+      ruby-graphviz (~> 1.0.4)
     railties (3.2.8)
       actionpack (= 3.2.8)
       activesupport (= 3.2.8)
@@ -79,6 +87,7 @@ GEM
     rake (10.0.2)
     rdoc (3.12)
       json (~> 1.4)
+    ruby-graphviz (1.0.8)
     sass (3.2.3)
     sass-rails (3.2.5)
       railties (~> 3.2.0)
@@ -103,9 +112,11 @@ PLATFORMS
   x86-mingw32
 
 DEPENDENCIES
+  annotate (>= 2.5.0)
   coffee-rails (~> 3.2.1)
   jquery-rails
   rails (= 3.2.8)
+  rails-erd
   sass-rails (~> 3.2.3)
   sqlite3
   uglifier (>= 1.0.3)

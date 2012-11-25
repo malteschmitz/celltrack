@@ -22,6 +22,13 @@ end
 
 gem 'jquery-rails'
 
+# Gems used only in development and not required
+# in production environments by default.
+group :development do
+  gem 'rails-erd'
+  gem 'annotate', ">=2.5.0"
+end
+
 # To use ActiveModel has_secure_password
 # gem 'bcrypt-ruby', '~> 3.0.0'
 
