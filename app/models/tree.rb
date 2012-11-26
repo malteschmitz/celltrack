@@ -11,7 +11,7 @@
 
 class Tree < ActiveRecord::Base
   belongs_to :experiment
-  belongs_to :root_path
+  belongs_to :root_path, :class_name => 'Path'
   has_many :paths
   
   attr_accessible :experiment, :root_path
