@@ -19,3 +19,7 @@ erd.pdf
 
 # Ignore doc
 doc
+
+# Ignore test data
+db/seeds
+
