@@ -46,9 +46,13 @@ paths = Path.create([
 ])
 
 paths[1].succ_paths = [paths[2], paths[3]]
-paths[1].save!
 paths[4].succ_paths = [paths[5], paths[6]]
-paths[4].save!
+paths.each{|p| p.save!}
+
+trees[0].root_path = paths[0];
+trees[1].root_path = paths[1];
+trees[2].root_path = paths[4];
+trees.each{|t| t.save!}
 
 cells = Cell.create([
   {:experiment => experiment, :image => images[0], :path => paths[0]},
