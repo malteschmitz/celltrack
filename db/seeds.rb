@@ -16,9 +16,9 @@
 # paths[5]: cells[10]
 # paths[6]: cells[11]
 # 
-# trees[0]: cells[0]
-# trees[1]: cells(1,2,3)  1 child {2,3}
-# tress[2]: cells(4,5,6)  4 child {5,6}
+# trees[0]: paths[0]
+# trees[1]: paths(1,2,3)  1 child {2,3}
+# tress[2]: paths(4,5,6)  4 child {5,6}
 
 experiment = Experiment.create(:name => 'Test',
   :description => 'This experiment is used to test the db schema.')
