@@ -14,5 +14,8 @@
 /log/*.log
 /tmp
 
-# Ignore ERD.pdf
-ERD.pdf
+# Ignore erd.pdf
+erd.pdf
+
+# Ignore doc
+doc
