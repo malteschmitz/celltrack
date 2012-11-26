@@ -22,6 +22,8 @@ end
 
 gem 'jquery-rails'
 
+gem 'rubyzip'
+
 # Gems used only in development and not required
 # in production environments by default.
 group :development do
