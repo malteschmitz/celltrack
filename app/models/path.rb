@@ -10,6 +10,24 @@
 #  import_id     :integer
 #
 
+# A path is a sequence of cells over several images and therefore rather 
+# corresponds to a biological entity. In contrast to biology the existence of
+# a path ends with the cleavage of the cell and two new paths form. If the
+# observed object moves outside of the image, the path also ends. A path begins
+# (a) with the cleavage of the 'mother cell', (b) if the cell moves into the
+# image coming from the edge or (c) if the cell was initially there in the
+# first image.
+# 
+# A certain path belongs to exactly one experiment, in which the corresponding 
+# data were obtained.
+# A certain path belongs to exactly one tree, in which this path is a part of.
+# A certain path has a non-empty set of cells. These observations over several 
+# images actually 'form' this path.
+# A certain path can have several predecessors, i.e. one or more paths, which
+# this path was originated from.
+# A certain path can have several successors, i.e. one or more paths, which
+# are originated from this path.
+
 class Path < ActiveRecord::Base
   belongs_to :experiment
   belongs_to :tree

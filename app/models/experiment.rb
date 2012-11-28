@@ -9,6 +9,20 @@
 #  updated_at  :datetime         not null
 #
 
+# An experiment is a certain 'cell tracking' observation experiment, in which
+# particular data is obtained, e.g. images.
+# 
+# A certain experiment has a set of cells. These are the observations over 
+# several images.
+# A certain experiment has a set of images. These are the main data, which is
+# collected during an experiment.
+# A certain experiment has a set of coordinates. These describe, for a certain
+# image, which cell can be seen at which position.
+# A certain experiment has a set of trees. These describe the developments of 
+# all biological entities, which has been observed in this experiment.
+# A certain experiment has a set of paths. These actually 'form' the single
+# trees.
+
 class Experiment < ActiveRecord::Base
   has_many :cells
   has_many :images
