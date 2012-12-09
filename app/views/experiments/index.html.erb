@@ -1,0 +1,22 @@
+<h1>Experiments</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th scope="col">Name</th>
+      <th scope="col" colspan="3">Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @experiments.each do |e| %>
+      <tr>
+        <td><%=h e.name %></td>
+        <td><%=link_to 'Show', e %></td>
+        <td><%=link_to 'Rename', edit_experiment_path(e) %></td>
+        <td><%=link_to 'Delete', e, :method => :delete, :data => { :confirm => "Do you really want to delete experiment “#{e.name}”?" } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<%= link_to 'New Experiment', new_experiment_path %>
