@@ -4,18 +4,19 @@ module ExperimentParser
     def findRootPaths(experiment)
       
       # find and set root of each tree
-      rootPaths = Path.joins('LEFT OUTER JOIN paths_paths ON paths.id = paths_paths.succ_path_id').where('paths_paths.pred_path_id IS NULL')
-      rootPaths.each { |r| 
-		if r.tree != nil
-			t = r.tree
-		else
-			t = Tree.create(:experiment => experiment)
-			r.tree = t
-		end
+      rootPaths = Path.joins('LEFT OUTER JOIN paths_paths ON paths.id = paths_paths.succ_path_id').where('paths_paths.pred_path_id IS NULL').select('paths.*')
+      rootPaths.each do |r| 
+        if !r.tree.nil?
+          t = r.tree
+        else
+          t = Tree.create!(:experiment => experiment)
+          r.tree = t
+          r.save!
+        end
         
         t.root_path = r
-        t.save
-      }
+        t.save!
+      end
     end
     
     # Parses a file as adjacency list for the trees in the experiment
@@ -24,10 +25,10 @@ module ExperimentParser
         |line|
         adjacency = line.split(",")
         # find path belonging to adjacency[0] (=> parent)
-        parent = Path.find(adjacency[0])
+        parent = Path.find_by_import_id(adjacency[0])
         
         # find path belonging to adjacency[1] (=> child)
-        child = Path.find(adjacency[1])
+        child = Path.find_by_import_id(adjacency[1])
         
         # check if they have a tree (one may have none or both have the same)
         tree = nil
@@ -40,28 +41,25 @@ module ExperimentParser
         end
         # if there is no such tree, create one
         if(tree == nil)
-          tree = Tree.create(:experiment => experiment)
+          tree = Tree.create!(:experiment => experiment)
         end
         
         # update parent and child
         parent.tree = tree
         child.tree = tree
          
-        # add child to succ_path of parent
+        # add child to succ_path of parent (and vice versa)
         parent.succ_paths << child
         
-        # add parent to pred_path of child
-        child.pred_paths << parent
-        
-        parent.save
-        child.save
+        parent.save!
+        child.save!
       }
     end
     
     # Parses a file as cellmask of the experiment
     def parseCellmask(experiment, file, filename)
       # create a new image
-      image = Image.create(:experiment => experiment, :filename => filename)
+      image = Image.create!(:experiment => experiment, :filename => filename)
     
       # parse each line
       y = 0
@@ -81,14 +79,14 @@ module ExperimentParser
           x += 1
           if(field != 0)
             # create new coordinates x,y
-            coordinate = Coordinate.create(:x => x, :y => y, :image => image, 
-                                           :experiment => experiment)
+            coordinate = Coordinate.new(:x => x, :y => y, :image => image, 
+                                        :experiment => experiment)
           
             # find a path that belongs to this field
             path = Path.where(:import_id => field)
             if(path.size < 1)
               # create new path
-              path = Path.create(:import_id => field, :experiment => experiment)
+              path = Path.create!(:import_id => field, :experiment => experiment)
             else
               # Unpack result array from Path.where statement
               path = path.first
@@ -101,7 +99,7 @@ module ExperimentParser
             
             # if there is no such cell, create a new one
             if(cell.size < 1)
-              cell = Cell.create(:experiment => experiment,
+              cell = Cell.create!(:experiment => experiment,
                                  :image => image,
                                  :path => path)
             else
@@ -110,6 +108,7 @@ module ExperimentParser
             end
             # connect coordinate and cell
             coordinate.cell = cell
+            coordinate.save!
           end
         }
       }
@@ -144,7 +143,7 @@ module ExperimentParser
     end
     
     def malte
-      e = Experiment.create
+      e = Experiment.create!
       ExperimentParser.parseCellExperiment(e, 'db/seeds/malte')
     end
   end
