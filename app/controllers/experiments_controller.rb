@@ -46,4 +46,8 @@ class ExperimentsController < ApplicationController
     end
     respond_with(@experiment)
   end
+  
+  def malte
+    ExperimentParser.malte
+  end
 end

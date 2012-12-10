@@ -59,4 +59,5 @@ Celltrack::Application.routes.draw do
   resources :experiments
   
   root :to => 'experiments#index'
+  match '/malte' => 'experiments#malte'
 end
