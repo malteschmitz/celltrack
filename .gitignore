@@ -29,3 +29,6 @@
 # Ignore Eclipse project stuff.
 /.buildpath
 /.project
+
+# Ignore compiled assets
+/public/assets
