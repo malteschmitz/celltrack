@@ -1,7 +1,7 @@
 module ExperimentParser
   class << self
     # Does post processing to finish parsing and import of data
-    def finishImport(experiment)
+    def findRootPaths(experiment)
       
       # find and set root of each tree
       rootPaths = Path.joins('LEFT OUTER JOIN paths_paths ON paths.id = paths_paths.succ_path_id').where('paths_paths.pred_path_id IS NULL')
@@ -140,7 +140,7 @@ module ExperimentParser
       adjacencyListFile.close
       
       # run post processing
-      finishImport(experiment)
+      findRootPaths(experiment)
     end
     
     def malte
