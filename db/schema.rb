@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121126142216) do
+ActiveRecord::Schema.define(:version => 20121210165609) do
 
   create_table "cells", :force => true do |t|
     t.integer  "image_id"
@@ -63,7 +63,7 @@ ActiveRecord::Schema.define(:version => 20121126142216) do
     t.integer  "import_id"
   end
 
-  create_table "paths_paths", :force => true do |t|
+  create_table "paths_paths", :id => false, :force => true do |t|
     t.integer "pred_path_id"
     t.integer "succ_path_id"
   end
