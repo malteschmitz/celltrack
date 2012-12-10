@@ -4,7 +4,7 @@ module ExperimentParser
     def finishImport(experiment)
       
       # find and set root of each tree
-      rootPaths = Path.where('LEFT OUTER JOIN paths_paths ON paths.id = paths_paths.succ_path_id').where('paths_paths.pred_path_id IS NULL')
+      rootPaths = Path.joins('LEFT OUTER JOIN paths_paths ON paths.id = paths_paths.succ_path_id').where('paths_paths.pred_path_id IS NULL')
       rootPaths.each { |r| 
         t = r.tree
         t.root_path = r
@@ -18,10 +18,10 @@ module ExperimentParser
         |line|
         adjacency = line.split(",")
         # find path belonging to adjacency[0] (=> parent)
-        parent = Path.find(adjacency[0]).first
+        parent = Path.find(adjacency[0])
         
         # find path belonging to adjacency[1] (=> child)
-        child = Path.find(adjacency[1]).first
+        child = Path.find(adjacency[1])
         
         # check if they have a tree (one may have none or both have the same)
         tree = nil
@@ -39,17 +39,16 @@ module ExperimentParser
         
         # update parent and child
         parent.tree = tree
-        parent.save
-        
         child.tree = tree
-        child.save
-        
-        # REALLY UNSURE 
+         
         # add child to succ_path of parent
-        parent.succ_path.push(child)
+        parent.succ_paths << child
         
         # add parent to pred_path of child
-        child.pred_path.push(parent)
+        child.pred_paths << parent
+        
+        parent.save
+        child.save
       }
     end
     
@@ -131,16 +130,16 @@ module ExperimentParser
       # Find adjacencyList in statusflags
       pathToAdjacencyList = path + "/statusflags/adjacencyList"
       adjacencyListFile = File.open(pathToAdjacencyList, "r")
-      parseAdjacencyList(experiment_id, adjacencyListFile)
+      parseAdjacencyList(experiment, adjacencyListFile)
       adjacencyListFile.close
       
       # run post processing
-      finishImport(experiment_id)
+      finishImport(experiment)
     end
     
     def malte
       e = Experiment.create
-      ExperimentParser.parseCellExperiment(e, 'db/seeds/refdataA')
+      ExperimentParser.parseCellExperiment(e, 'db/seeds/malte')
     end
   end
 end
