@@ -1,6 +1,6 @@
 
 # Does post processing to finish parsing and import of data
-def finishImport(experiment)
+def findRootPaths(experiment)
   
   # find and set root of each tree
   rootPaths = Path.where(:experiment => experiment, :pred_path => nil)
@@ -38,10 +38,7 @@ def parseAdjacencyList(experiment, file)
     
     # update parent and child
     parent.tree = tree
-    parent.save
-    
     child.tree = tree
-    child.save
     
     # REALLY UNSURE 
     # add child to succ_path of parent
@@ -49,6 +46,9 @@ def parseAdjacencyList(experiment, file)
     
     # add parent to pred_path of child
     child.pred_path.push(parent)
+    
+    parent.save
+    child.save
   }
 end
 
@@ -102,6 +102,10 @@ def parseCellmask(experiment, file, filename)
         end
         # connect coordinate and cell
         coordinate.cell = cell
+        
+        coordinate.save
+        cell.save
+        path.save
       end
     }
   }
@@ -132,6 +136,6 @@ def parseCellExperiment(experiment_id, path)
   parseAdjacencyList(experiment_id, adjacencyListFile)
   adjacencyListFile.close
   
-  # run post processing
-  finishImport(experiment_id)
+  # finish up import
+  findRootPaths(experiment_id)
 end
