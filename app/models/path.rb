@@ -46,5 +46,5 @@ class Path < ActiveRecord::Base
                           :foreign_key => 'pred_path_id',
                           :association_foreign_key => 'succ_path_id'
   
-  attr_accessible :experiment, :tree
+  attr_accessible :experiment, :tree, :import_id
 end
