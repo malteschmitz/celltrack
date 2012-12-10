@@ -34,4 +34,11 @@ class Experiment < ActiveRecord::Base
   has_many :paths
 
   attr_accessible :description, :name
+  
+  def import(uploaded_file)
+    Zip::ZipFile::open(uploaded_file.tempfile) do |zf|
+      debugger
+      # zf.select {|f| f.directory?}
+    end
+  end
 end

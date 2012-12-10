@@ -17,9 +17,16 @@ class ExperimentsController < ApplicationController
   end
   
   def create
+    uploaded_file = params[:experiment][:zip_file] if params[:experiment]
+    params[:experiment].delete(:zip_file)
     @experiment = Experiment.new(params[:experiment])
-    if @experiment.save
-      flash[:notice] = "Experiment “#{@experiment.name}” was successfully created."
+    if uploaded_file
+      if @experiment.save
+        flash[:notice] = "Experiment “#{@experiment.name}” was successfully created."
+        @experiment.import(uploaded_file)
+      end
+    else
+      @experiment.errors.add(:zip_file, 'not selected')
     end
     respond_with(@experiment)
   end
