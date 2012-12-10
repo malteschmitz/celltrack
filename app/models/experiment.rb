@@ -38,7 +38,10 @@ class Experiment < ActiveRecord::Base
   def import(uploaded_file)
     Zip::ZipFile::open(uploaded_file.tempfile) do |zf|
       debugger
-      # zf.select {|f| f.directory?}
+      # p zf.select {|f| f.directory?}
+      # p zf.dir.entries('.') # => ["cellmasks", "genealogic-trees", "statusflags"]
+      # p zf.dir.entries('cellmasks') # => ["refdataA_txt", ...]
+      # p zf.dir.entries('statusflags') # => ["adjacencyList", "beginning", "border_begin", "border_end", "coupled", "ending", "lost_begin", "lost_end", "mitoses"]
     end
   end
 end

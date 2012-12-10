@@ -22,7 +22,7 @@ end
 
 gem 'jquery-rails'
 
-gem 'rubyzip', :require => 'zip/zip'
+gem 'rubyzip', :require => 'zip/zipfilesystem'
 
 # Gems used only in development and not required
 # in production environments by default.
