@@ -15,14 +15,17 @@
 /tmp
 
 # Ignore erd.pdf
-erd.pdf
+/erd.pdf
 
 # Ignore doc
-doc
+/doc
 
 # Ignore test data
-db/seeds
+/db/seeds
+
+# Ignore image data
+/public/experiments
 
 # Ignore Eclipse project stuff.
-.buildpath
-.project
+/.buildpath
+/.project

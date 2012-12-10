@@ -22,13 +22,14 @@ end
 
 gem 'jquery-rails'
 
-gem 'rubyzip'
+gem 'rubyzip', :require => 'zip/zipfilesystem'
 
 # Gems used only in development and not required
 # in production environments by default.
 group :development do
   gem 'rails-erd'
   gem 'annotate', ">=2.5.0"
+  gem 'debugger'
 end
 
 # To use ActiveModel has_secure_password
@@ -42,6 +43,3 @@ end
 
 # Deploy with Capistrano
 # gem 'capistrano'
-
-# To use debugger
-# gem 'debugger'
