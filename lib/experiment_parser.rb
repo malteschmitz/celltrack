@@ -6,7 +6,13 @@ module ExperimentParser
       # find and set root of each tree
       rootPaths = Path.joins('LEFT OUTER JOIN paths_paths ON paths.id = paths_paths.succ_path_id').where('paths_paths.pred_path_id IS NULL')
       rootPaths.each { |r| 
-        t = r.tree
+		if r.tree != nil
+			t = r.tree
+		else
+			t = Tree.create(:experiment => experiment)
+			r.tree = t
+		end
+        
         t.root_path = r
         t.save
       }
