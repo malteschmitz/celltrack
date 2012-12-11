@@ -1,6 +1,7 @@
 module ExperimentParser
   class << self
-    # Does post processing to finish parsing and import of data
+    
+    # Finds the root of each tree and sets the root_path property of the tree
     def findRootPaths(experiment)
       
       # find and set root of each tree
@@ -21,8 +22,7 @@ module ExperimentParser
     
     # Parses a file as adjacency list for the trees in the experiment
     def parseAdjacencyList(experiment, file)
-      file.each {
-        |line|
+      file.each do |line|
         adjacency = line.split(",")
         # find path belonging to adjacency[0] (=> parent)
         parent = Path.find_by_import_id(adjacency[0])
@@ -32,15 +32,14 @@ module ExperimentParser
         
         # check if they have a tree (one may have none or both have the same)
         tree = nil
-        if(parent.tree != nil)
+        if !parent.tree.nil?
           tree = parent.tree
         end
-        if(child.tree != nil && tree == nil)
-          # if(tree != nil && child.tree != tree) => error
+        if !child.tree.nil? && tree.nil?
           tree = child.tree
         end
         # if there is no such tree, create one
-        if(tree == nil)
+        if tree.nil?
           tree = Tree.create!(:experiment => experiment)
         end
         
@@ -53,7 +52,7 @@ module ExperimentParser
         
         parent.save!
         child.save!
-      }
+      end
     end
     
     # Parses a file as cellmask of the experiment
@@ -63,8 +62,7 @@ module ExperimentParser
     
       # parse each line
       y = 0
-      file.each {
-        |line|
+      file.each do |line|
         
         # increase line counter
         y += 1
@@ -74,17 +72,16 @@ module ExperimentParser
         x = 0
         
         # For each element of the line
-        fields.each {
-          |field|
+        fields.each do |field|
           x += 1
-          if(field != 0)
+          if field != 0
             # create new coordinates x,y
             coordinate = Coordinate.new(:x => x, :y => y, :image => image, 
                                         :experiment => experiment)
           
             # find a path that belongs to this field
             path = Path.where(:import_id => field)
-            if(path.size < 1)
+            if path.empty?
               # create new path
               path = Path.create!(:import_id => field, :experiment => experiment)
             else
@@ -98,7 +95,7 @@ module ExperimentParser
                               :path_id => path.id)
             
             # if there is no such cell, create a new one
-            if(cell.size < 1)
+            if cell.empty?
               cell = Cell.create!(:experiment => experiment,
                                  :image => image,
                                  :path => path)
@@ -110,8 +107,8 @@ module ExperimentParser
             coordinate.cell = cell
             coordinate.save!
           end
-        }
-      }
+        end
+      end
     end
     
     # Parse a directory (specified by path) as an experiment
@@ -121,8 +118,7 @@ module ExperimentParser
       pathToCellmasks = path + "/cellmasks"
       
       # For each cellmask file, call parseCellmask method
-      Dir.foreach(pathToCellmasks) { 
-        |cellmask| 
+      Dir.foreach(pathToCellmasks) do |cellmask| 
         file_path = pathToCellmasks + "/" + cellmask
         puts file_path
         if File.file?(file_path)
@@ -130,7 +126,7 @@ module ExperimentParser
           parseCellmask(experiment, file, cellmask) 
           file.close
         end
-      }
+      end
       
       # Find adjacencyList in statusflags
       pathToAdjacencyList = path + "/statusflags/adjacencyList"
