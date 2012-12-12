@@ -37,3 +37,26 @@ production:
 #  pool: 5
 #  username: root
 #  password: dummy
+
+# PostgreSQL
+# development:
+#   adapter: postgresql
+#   encoding: unicode
+#   database: celltrack_development
+#   pool: 5
+#   username: root
+#   password: dummy
+# test:
+#   adapter: postgresql
+#   encoding: unicode
+#   database: celltrack_test
+#   pool: 5
+#   username: root
+#   password: dummy
+# production:
+#   adapter: postgresql
+#   encoding: unicode
+#   database: celltrack_production
+#   pool: 5
+#   username: root
+#   password: dummy
