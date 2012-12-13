@@ -61,19 +61,14 @@ module ExperimentParser
       image = Image.create!(:experiment => experiment, :filename => filename)
     
       # parse each line
-      y = 0
-      file.each do |line|
+      file.each_with_index do |line, y|
         
-        # increase line counter
-        y += 1
-        
-        # Split line at comma into array
+       # Split line at comma into array
         fields = line.split(",")
-        x = 0
         
         # For each element of the line
-        fields.each do |field|
-          x += 1
+        fields.each_with_index do |field, x|
+        
           if field != 0
             # create new coordinates x,y
             coordinate = Coordinate.new(:x => x, :y => y, :image => image, 
