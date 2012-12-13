@@ -78,8 +78,19 @@ module ExperimentParser
     def parseCellmask(experiment, file, filename)
       # create a new image
       image = Image.create!(:experiment => experiment, :filename => filename)
+      
+      # import data from file to variable data
+      @data = []
+      file.each do |line|
+        @data << line.split(',').map(&:to_i)
+      end
+      
+      # set current row and column count
+      @rows = @data.length
+      @cols = @data.first.length
     
-      # parse each line
+=begin    
+      # parse each line 
       file.each_with_index do |line, y|
         
        # Split line at comma into array
@@ -123,6 +134,7 @@ module ExperimentParser
           end
         end
       end
+=end
     end
     
     # Parse a directory (specified by path) as an experiment
