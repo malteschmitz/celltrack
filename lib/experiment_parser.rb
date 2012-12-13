@@ -144,7 +144,9 @@ module ExperimentParser
       pathToCellmasks = path + "/cellmasks"
       
       # For each cellmask file, call parseCellmask method
-      Dir.foreach(pathToCellmasks) do |cellmask| 
+      files = Dir.entries(pathToCellmasks)
+      files = files.sort
+      files.each do |cellmask| 
         file_path = pathToCellmasks + "/" + cellmask
         puts file_path
         if File.file?(file_path)
