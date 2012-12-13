@@ -1,6 +1,25 @@
 module ExperimentParser
   class << self
     
+    @data = []
+    @rows = 0
+    @cols = 0
+    
+    # Returns true if the field (x,y) is on the border of a cell, false otherwise
+    def border?(x,y)
+      c = @data[y][x]
+      if c > 0
+        x == 0 ||
+        x == @cols - 1 ||
+        y == 0 ||
+        y == @rows - 1 ||
+        @data[y][x-1] != c ||
+        @data[y-1][x] != c ||
+        @data[y][x+1] != c ||
+        @data[y+1][x] != c
+      end
+    end
+    
     # Finds the root of each tree and sets the root_path property of the tree
     def findRootPaths(experiment)
       
