@@ -19,7 +19,10 @@ end
 
 count = 0
 count_border = 0
-Dir.foreach(PATH) do |file|
+time_start = Time.now
+files = Dir.entries(PATH)
+files = files.sort
+files.each do |file|
   if File.file?(PATH + '/' + file)
     $data = []
     File.open(PATH + '/' + file) do |f|
@@ -38,5 +41,6 @@ Dir.foreach(PATH) do |file|
     puts "#{file} #{count} #{count_border}"
   end
 end
+puts (Time.now - time_start).to_s
 
 # refdataA_209.txt 46.246.907 12.243.993
