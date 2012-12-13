@@ -5,19 +5,20 @@ module ExperimentParser
     @rows = 0
     @cols = 0
     
-    # Returns true if the field (x,y) is on the border of a cell, false otherwise
-    def border?(x,y)
-      c = @data[y][x]
-      if c > 0
-        x == 0 ||
-        x == @cols - 1 ||
-        y == 0 ||
-        y == @rows - 1 ||
-        @data[y][x-1] != c ||
-        @data[y-1][x] != c ||
-        @data[y][x+1] != c ||
-        @data[y+1][x] != c
-      end
+    # hash map of paths (unique for a complete experiment)
+    @paths = Hash.new
+    
+    # Returns true if the field (c,x,y) is on the border of a cell, 
+    # false otherwise. c: field value, x,y: coordinates of field
+    def border?(c, x, y)
+      x == 0 ||
+      x == @cols - 1 ||
+      y == 0 ||
+      y == @rows - 1 ||
+      @data[y][x-1] != c ||
+      @data[y-1][x] != c ||
+      @data[y][x+1] != c ||
+      @data[y+1][x] != c
     end
     
     # Finds the root of each tree and sets the root_path property of the tree
@@ -79,6 +80,12 @@ module ExperimentParser
       # create a new image
       image = Image.create!(:experiment => experiment, :filename => filename)
       
+      # coordinates array
+      coordinates = []
+      
+      # cells hashmap
+      cells = Hash.new
+      
       # import data from file to variable data
       @data = []
       file.each do |line|
@@ -88,53 +95,62 @@ module ExperimentParser
       # set current row and column count
       @rows = @data.length
       @cols = @data.first.length
-    
-=begin    
-      # parse each line 
-      file.each_with_index do |line, y|
-        
-       # Split line at comma into array
-        fields = line.split(",")
-        
-        # For each element of the line
-        fields.each_with_index do |field, x|
-        
-          if field != 0
-            # create new coordinates x,y
-            coordinate = Coordinate.new(:x => x, :y => y, :image => image, 
-                                        :experiment => experiment)
-          
-            # find a path that belongs to this field
-            path = Path.where(:import_id => field)
-            if path.empty?
-              # create new path
-              path = Path.create!(:import_id => field, :experiment => experiment)
-            else
-              # Unpack result array from Path.where statement
-              path = path.first
+      
+      # parse each element of data
+      0.upto(@rows-1) do |y|
+        0.upto(@cols-1) do |x|
+          field = @data[y][x]
+          if field > 0
+            if border?(field, x, y)
+              # create new coordinate (because field is element of border)
+              coordinate = Coordinate.new(:x => x, :y => y, :image => image,
+                             :experiment => experiment)
+              
+              # is there a path to this field value?
+              path = @paths[field]
+              if path.nil?
+                # no in-memory path found, check database
+                path = Path.where(:import_id => field)
+                
+                if path.empty?
+                  # no database entry found, create one
+                  # necessary because connecting to other models not possible
+                  # without id. (new does not result in an id)
+                  path = Path.create!(:import_id => field)
+                else
+                  path = path.first
+                end
+                
+                # add path to hashmap
+                @paths[field] = path
+              end
+              
+              # is there already a cell model for this image and field value?
+              cell = cells[field]
+              if cell.nil?
+                # no in-memory cell found, create one
+                # necessary because connecting to other models not possible
+                # without id. (new does not result in an id)
+                cell = Cell.create!(:experiment => experiment, :image => image,
+                                :path => path)
+                # add to hashmap
+                cells[field] = cell
+              end
+              
+              # connect coordinate to cell
+              coordinate.cell = cell
+              
+              # push coordinate on coordinates array
+              coordinates << coordinate
             end
-            
-            # find cell for the current image and path
-            cell = Cell.where(:experiment_id => experiment.id,
-                              :image_id => image.id,
-                              :path_id => path.id)
-            
-            # if there is no such cell, create a new one
-            if cell.empty?
-              cell = Cell.create!(:experiment => experiment,
-                                 :image => image,
-                                 :path => path)
-            else
-              # unpack result array
-              cell = cell.first
-            end
-            # connect coordinate and cell
-            coordinate.cell = cell
-            coordinate.save!
           end
         end
-      end
-=end
+      end  
+      
+      # All fields were parsed, use activerecord-import for faster database
+      # write
+      # Not the fastest method. Use columns directly for fastest import
+      Coordinate.import coordinates
     end
     
     # Parse a directory (specified by path) as an experiment
@@ -143,13 +159,15 @@ module ExperimentParser
       # Find cellmasks directory
       pathToCellmasks = path + "/cellmasks"
       
+      @paths = Hash.new
+      
       # For each cellmask file, call parseCellmask method
       files = Dir.entries(pathToCellmasks)
       files = files.sort
       files.each do |cellmask| 
         file_path = pathToCellmasks + "/" + cellmask
-        puts file_path
         if File.file?(file_path)
+          puts file_path
           file = File.open(pathToCellmasks + "/" + cellmask, "r")
           parseCellmask(experiment, file, cellmask) 
           file.close
@@ -168,7 +186,7 @@ module ExperimentParser
     
     def malte
       e = Experiment.create!
-      ExperimentParser.parseCellExperiment(e, 'db/seeds/malte')
+      ExperimentParser.parseCellExperiment(e, 'db/seeds/refdataA')
     end
   end
 end
