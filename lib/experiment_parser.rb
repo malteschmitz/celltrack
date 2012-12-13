@@ -77,6 +77,9 @@ module ExperimentParser
     
     # Parses a file as cellmask of the experiment
     def parseCellmask(experiment, file, filename)
+      # Columns for activerecord-import on Coordinate
+      coordinate_cols = [ :cell_id, :image_id, :experiment_id, :x, :y ]
+    
       # create a new image
       image = Image.create!(:experiment => experiment, :filename => filename)
       
@@ -102,9 +105,6 @@ module ExperimentParser
           field = @data[y][x]
           if field > 0
             if border?(field, x, y)
-              # create new coordinate (because field is element of border)
-              coordinate = Coordinate.new(:x => x, :y => y, :image => image,
-                             :experiment => experiment)
               
               # is there a path to this field value?
               path = @paths[field]
@@ -137,8 +137,8 @@ module ExperimentParser
                 cells[field] = cell
               end
               
-              # connect coordinate to cell
-              coordinate.cell = cell
+              # create new coordinate (because field is element of border)
+              coordinate = [ cell.id, image.id, experiment.id, x, y ]
               
               # push coordinate on coordinates array
               coordinates << coordinate
@@ -150,7 +150,7 @@ module ExperimentParser
       # All fields were parsed, use activerecord-import for faster database
       # write
       # Not the fastest method. Use columns directly for fastest import
-      Coordinate.import coordinates
+      Coordinate.import coordinate_cols, coordinates, :validate => false
     end
     
     # Parse a directory (specified by path) as an experiment
