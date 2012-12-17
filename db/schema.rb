@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121210165609) do
+ActiveRecord::Schema.define(:version => 20121217103935) do
 
   create_table "cells", :force => true do |t|
     t.integer  "image_id"
@@ -19,6 +19,7 @@ ActiveRecord::Schema.define(:version => 20121210165609) do
     t.integer  "path_id"
     t.datetime "created_at",    :null => false
     t.datetime "updated_at",    :null => false
+    t.binary   "mask"
   end
 
   add_index "cells", ["experiment_id"], :name => "index_cells_on_experiment_id"
