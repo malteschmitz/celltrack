@@ -8,6 +8,12 @@ module ExperimentParser
     # hash map of paths (unique for a complete experiment)
     @paths = Hash.new
     
+    # hash map for each bound box attribute
+    @minX = Hash.new
+    @minY = Hash.new
+    @maxX = Hash.new
+    @maxY = Hash.new
+    
     # Returns true if the field (c,x,y) is on the border of a cell, 
     # false otherwise. c: field value, x,y: coordinates of field
     def border?(c, x, y)
@@ -89,6 +95,12 @@ module ExperimentParser
       # cells hashmap
       cells = Hash.new
       
+      # bounding box hashmap
+      @minX = Hash.new
+      @minY = Hash.new
+      @maxX = Hash.new
+      @maxY = Hash.new
+      
       # import data from file to variable data
       @data = []
       file.each do |line|
@@ -135,6 +147,19 @@ module ExperimentParser
                                 :path => path)
                 # add to hashmap
                 cells[field] = cell
+                
+                # initialize bounding box values
+                @minX[field] = x
+                @maxX[field] = x + 1
+                @minY[field] = y
+                @maxY[field] = y + 1
+              else
+                # this cell (representation of a path) has already been found
+                # update bounding box values if necessary
+                @minX[field] = x if x < @minX[field]
+                @maxX[field] = x + 1 if x >= @maxX[field]
+                @minY[field] = y if y < @minY[field]
+                @maxY[field] = y + 1 if y >= @maxY[field]
               end
               
               # create new coordinate (because field is element of border)
@@ -146,6 +171,12 @@ module ExperimentParser
           end
         end
       end  
+      
+=begin #debug output      
+      cells.each do |cell, value|
+        puts "#{cell}: #{@minX[cell]} #{@maxX[cell]} #{@minY[cell]} #{@maxY[cell]}"
+      end
+=end
       
       # All fields were parsed, use activerecord-import for faster database
       # write
@@ -186,7 +217,7 @@ module ExperimentParser
     
     def malte
       e = Experiment.create!
-      ExperimentParser.parseCellExperiment(e, 'db/seeds/refdataA')
+      ExperimentParser.parseCellExperiment(e, 'db/seeds/malte')
     end
   end
 end
