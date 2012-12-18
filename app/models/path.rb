@@ -7,7 +7,6 @@
 #  tree_id       :integer
 #  created_at    :datetime         not null
 #  updated_at    :datetime         not null
-#  import_id     :integer
 #
 # == Description
 #
@@ -46,5 +45,5 @@ class Path < ActiveRecord::Base
                           :foreign_key => 'pred_path_id',
                           :association_foreign_key => 'succ_path_id'
   
-  attr_accessible :experiment, :tree, :import_id
+  attr_accessible :experiment, :tree
 end
