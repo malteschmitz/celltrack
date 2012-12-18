@@ -1,4 +1,9 @@
 class ExperimentParser
+  # private helper class to import data into paths_paths join table
+  class PathsPaths < ActiveRecord::Base
+    # nothing in here
+  end
+
   # Parse a directory (specified by path) as an experiment
   def initialize(experiment, path)
     @experiment = experiment
@@ -6,11 +11,19 @@ class ExperimentParser
     # Find cellmasks directory
     pathToCellmasks = path + "/cellmasks"
     
-    # maps import field numbers to database path ids
-    @paths = Hash.new
+    # maps import path numbers to database path ids
+    @paths = {}
+    # next free id in paths table
     @path_id = Path.maximum(:id) || 0
-    
+    # next free id in cells table
     @cell_id = Cell.maximum(:id) || 0
+    # list of images
+    @images = []
+    @image_id = Image.maximum(:id) || 0
+    # next free id in 
+    @tree_id = Tree.maximum(:id) || 0
+    # list of trees
+    @trees = []
     
     # For each cellmask file, call parseCellmask method
     files = Dir.entries(pathToCellmasks)
@@ -25,29 +38,38 @@ class ExperimentParser
       end
     end
     
-    # Find adjacencyList in statusflags
-    #pathToAdjacencyList = path + "/statusflags/adjacencyList"
-    #adjacencyListFile = File.open(pathToAdjacencyList, "r")
-    #parseAdjacencyList(experiment, adjacencyListFile)
-    #adjacencyListFile.close
+    # compute information of images
+    image_array = []
+    @images.each do |id, file_name|
+      image_array << [id, experiment.id, file_name]
+    end
+    # import images into databse
+    Image.import [:id, :experiment_id, :filename], image_array,
+      :validate => false
     
-    # run post processing
-    #findRootPaths(experiment)
+    # Find adjacencyList in statusflags and import paths
+    pathToAdjacencyList = path + "/statusflags/adjacencyList"
+    adjacencyListFile = File.open(pathToAdjacencyList, "r")
+    parseAdjacencyList(adjacencyListFile)
+    adjacencyListFile.close
+    
+    # run post processing and import trees
+    findRootPaths
   end
     
   # Parses a file as cellmask of the experiment
   def parseCellmask(file, image_filename)
     # create a new image
-    image = Image.create!(:experiment => @experiment, :filename => image_filename)
+    @images << [image_id = @image_id += 1, image_filename]
     
     # maps import filed numbers to database cell ids
-    cells = Hash.new
+    cells = {}
     
     # maps cell id to bounding box coordinates
-    minX = Hash.new
-    minY = Hash.new
-    maxX = Hash.new
-    maxY = Hash.new
+    minX = {}
+    minY = {}
+    maxX = {}
+    maxY = {}
     
     # import data from file to variable data
     data = []
@@ -86,75 +108,103 @@ class ExperimentParser
         end
       end
     end
-    
+  
+    # compute information of cells  
     cell_array = []
     cells.each do |field, cell|
       bv = BitVector.new
-      minY[cell].upto(maxX[cell]) do |x|
+      centerX = 0
+      centerY = 0
+      count = 0
+      minX[cell].upto(maxX[cell]) do |x|
         minY[cell].upto(maxY[cell]) do |y|
           if data[y][x] == field
             bv << 1
+            centerX += x
+            centerY += y
+            count += 1
           else
             bv << 0
           end
         end
       end
-      cell_array << [cell, @experiment.id, image.id, @paths[field], bv.to_binary]
+      width = maxX[cell] - minX[cell] + 1
+      height = maxY[cell] - minY[cell] + 1
+      centerX /= count
+      centerY /= count
+      cell_array << [cell, @experiment.id, image_id, @paths[field],
+        bv.to_binary, minY[cell], minX[cell], width, height,
+        centerX, centerY]
     end
-    Cell.import [:id, :experiment_id, :image_id, :path_id, :mask], cell_array
+    # import cells into database
+    Cell.import [:id, :experiment_id, :image_id, :path_id, :mask, :top, :left,
+      :width, :height, :center_x, :center_y], cell_array, :validate => false
   end
     
   # Parses a file as adjacency list for the trees in the experiment
   def parseAdjacencyList(file)
+    # list of adjacencies contains pairs of database path ids
+    adjacencies = []
+    # maps database path ids to database tree ids of its tree
+    tree_of_path = {}
+  
     file.each do |line|
-      adjacency = line.split(",")
+      adjacency = line.split(",").map(&:to_i)
       # find path belonging to adjacency[0] (=> parent)
-      parent = Path.find_by_import_id(adjacency[0])
+      parent = @paths[adjacency[0]]
       
       # find path belonging to adjacency[1] (=> child)
-      child = Path.find_by_import_id(adjacency[1])
+      child = @paths[adjacency[1]]
       
       # check if they have a tree (one may have none or both have the same)
-      tree = nil
-      if !parent.tree.nil?
-        tree = parent.tree
-      end
-      if !child.tree.nil? && tree.nil?
-        tree = child.tree
-      end
-      # if there is no such tree, create one
+      tree = tree_of_path[parent] || tree_of_path[child]
       if tree.nil?
-        tree = Tree.create!(:experiment => experiment)
+        @trees << tree = @tree_id += 1
       end
       
       # update parent and child
-      parent.tree = tree
-      child.tree = tree
+      tree_of_path[parent] = tree
+      tree_of_path[child] = tree
        
       # add child to succ_path of parent (and vice versa)
-      parent.succ_paths << child
-      
-      parent.save!
-      child.save!
+      adjacencies << [parent, child]
     end
+    
+    # compute information of paths
+    path_array = []
+    @paths.each_value do |id|
+      # handle paths which did not occur in adjacency list
+      tree = tree_of_path[id]
+      @trees << tree = @tree_id += 1 if tree.nil?
+      path_array << [id, @experiment.id, tree]
+    end
+    # import paths into databse
+    Path.import [:id, :experiment_id, :tree_id], path_array, :validate => false
+    
+    # import paths_paths into database
+    # TODO do not try to create id, created_at and updated_at
+    PathsPaths.import [:pred_path_id, :succ_path_id], adjacencies
   end
     
   # Finds the root of each tree and sets the root_path property of the tree
   def findRootPaths
+    # maps database tree ids to database path ids of its root paths
+    roots = {}
+    
     # find and set root of each tree
     rootPaths = Path.joins('LEFT OUTER JOIN paths_paths ON paths.id = paths_paths.succ_path_id').where('paths_paths.pred_path_id IS NULL').select('paths.*')
     rootPaths.each do |r| 
-      if !r.tree.nil?
-        t = r.tree
-      else
-        t = Tree.create!(:experiment => experiment)
-        r.tree = t
-        r.save!
-      end
-      
-      t.root_path = r
-      t.save!
+      roots[r.tree_id] = r
     end
+    
+    # compute information of trees
+    tree_array = []
+    @trees.each do |id|
+      tree_array << [id, @experiment.id, roots[id]]
+    end
+    # import trees into databse
+    Tree.import [:id, :experiment_id, :root_path_id], tree_array,
+      :validate => false
   end
   
   def self.parseCellExperiment(experiment, path)
