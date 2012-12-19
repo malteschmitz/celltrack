@@ -6,7 +6,8 @@ gem 'rails', '3.2.8'
 # gem 'rails', :git => 'git://github.com/rails/rails.git'
 
 gem 'sqlite3'
-
+gem 'mysql', '2.8.1'
+gem 'pg'
 
 # Gems used only for assets and not required
 # in production environments by default.
@@ -23,6 +24,8 @@ end
 gem 'jquery-rails'
 
 gem 'rubyzip', :require => 'zip/zipfilesystem'
+
+gem 'activerecord-import'
 
 # Gems used only in development and not required
 # in production environments by default.

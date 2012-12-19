@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121126142216) do
+ActiveRecord::Schema.define(:version => 20121218215303) do
 
   create_table "cells", :force => true do |t|
     t.integer  "image_id"
@@ -19,25 +19,18 @@ ActiveRecord::Schema.define(:version => 20121126142216) do
     t.integer  "path_id"
     t.datetime "created_at",    :null => false
     t.datetime "updated_at",    :null => false
+    t.binary   "mask"
+    t.integer  "top"
+    t.integer  "left"
+    t.integer  "center_x"
+    t.integer  "center_y"
+    t.integer  "width"
+    t.integer  "height"
   end
 
   add_index "cells", ["experiment_id"], :name => "index_cells_on_experiment_id"
   add_index "cells", ["image_id"], :name => "index_cells_on_image_id"
   add_index "cells", ["path_id"], :name => "index_cells_on_path_id"
-
-  create_table "coordinates", :force => true do |t|
-    t.integer  "cell_id"
-    t.integer  "image_id"
-    t.integer  "experiment_id"
-    t.integer  "x"
-    t.integer  "y"
-    t.datetime "created_at",    :null => false
-    t.datetime "updated_at",    :null => false
-  end
-
-  add_index "coordinates", ["cell_id"], :name => "index_coordinates_on_cell_id"
-  add_index "coordinates", ["experiment_id"], :name => "index_coordinates_on_experiment_id"
-  add_index "coordinates", ["image_id"], :name => "index_coordinates_on_image_id"
 
   create_table "experiments", :force => true do |t|
     t.string   "name"
@@ -60,10 +53,9 @@ ActiveRecord::Schema.define(:version => 20121126142216) do
     t.integer  "tree_id"
     t.datetime "created_at",    :null => false
     t.datetime "updated_at",    :null => false
-    t.integer  "import_id"
   end
 
-  create_table "paths_paths", :force => true do |t|
+  create_table "paths_paths", :id => false, :force => true do |t|
     t.integer "pred_path_id"
     t.integer "succ_path_id"
   end
