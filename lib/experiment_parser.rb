@@ -182,8 +182,7 @@ class ExperimentParser
     Path.import [:id, :experiment_id, :tree_id], path_array, :validate => false
     
     # import paths_paths into database
-    # TODO do not try to create id, created_at and updated_at
-    PathsPaths.import [:pred_path_id, :succ_path_id], adjacencies
+    PathsPaths.import [:pred_path_id, :succ_path_id], adjacencies, :validate => false
   end
     
   # Finds the root of each tree and sets the root_path property of the tree
@@ -192,9 +191,9 @@ class ExperimentParser
     roots = {}
     
     # find and set root of each tree
-    rootPaths = Path.joins('LEFT OUTER JOIN paths_paths ON paths.id = paths_paths.succ_path_id').where('paths_paths.pred_path_id IS NULL').select('paths.*')
+    rootPaths = Path.joins('LEFT OUTER JOIN paths_paths ON paths.id = paths_paths.succ_path_id').where('paths_paths.pred_path_id IS NULL AND experiment_id = ?', @experiment.id).select('paths.id, paths.tree_id')
     rootPaths.each do |r| 
-      roots[r.tree_id] = r
+      roots[r.tree_id] = r.id
     end
     
     # compute information of trees
