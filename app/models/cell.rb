@@ -32,5 +32,5 @@ class Cell < ActiveRecord::Base
   belongs_to :path
   
   attr_accessible :image, :experiment, :path, :mask, :top, :left, :center_x,
-    :center_y
+    :center_y, :width, :height
 end
