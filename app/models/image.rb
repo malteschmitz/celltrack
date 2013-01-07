@@ -27,4 +27,8 @@ class Image < ActiveRecord::Base
   has_many :coordinates
 
   attr_accessible :experiment, :filename, :ord
+  
+  def as_json(options={})
+    super(options.merge(:methods => [:cells]))
+  end
 end

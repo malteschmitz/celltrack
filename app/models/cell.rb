@@ -33,4 +33,10 @@ class Cell < ActiveRecord::Base
   
   attr_accessible :image, :experiment, :path, :mask, :top, :left, :center_x,
     :center_y, :width, :height
+    
+  def as_json(options={})
+    only = [:id, :top, :left, :width, :height, :center_x, :center_y, :path_id, :image_id, :experiment_id]
+    merge = {:mask => [mask].pack('m*')}
+    super(options.merge(:only => only)).merge(merge)
+  end
 end
