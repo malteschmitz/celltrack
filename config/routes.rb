@@ -57,7 +57,10 @@ Celltrack::Application.routes.draw do
   # match ':controller(/:action(/:id))(.:format)'
   
   resources :experiments
-  resources :images
+  resources :images, :only => [:show] do
+    get 'goto', :on => :collection
+  end
+  resources :cells, :only => [:show]
   
   root :to => 'experiments#index'
   match '/malte' => 'experiments#malte'
