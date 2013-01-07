@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121218215303) do
+ActiveRecord::Schema.define(:version => 20130107211459) do
 
   create_table "cells", :force => true do |t|
     t.integer  "image_id"
@@ -44,6 +44,7 @@ ActiveRecord::Schema.define(:version => 20121218215303) do
     t.string   "filename"
     t.datetime "created_at",    :null => false
     t.datetime "updated_at",    :null => false
+    t.integer  "ord"
   end
 
   add_index "images", ["experiment_id"], :name => "index_images_on_experiment_id"

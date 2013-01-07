@@ -26,5 +26,5 @@ class Image < ActiveRecord::Base
   has_many :cells
   has_many :coordinates
 
-  attr_accessible :experiment, :filename
+  attr_accessible :experiment, :filename, :ord
 end
