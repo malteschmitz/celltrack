@@ -116,8 +116,8 @@ class ExperimentParser
       centerX = 0
       centerY = 0
       count = 0
-      minX[cell].upto(maxX[cell]) do |x|
-        minY[cell].upto(maxY[cell]) do |y|
+      minY[cell].upto(maxY[cell]) do |y|
+        minX[cell].upto(maxX[cell]) do |x|      
           if data[y][x] == field
             bv << 1
             centerX += x
