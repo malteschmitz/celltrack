@@ -17,7 +17,7 @@ class BitVector
   end
   
   def to_binary
-    add_last if @base > 0
+    add_last if @base < 128
     @data.pack('C*')
   end
   
