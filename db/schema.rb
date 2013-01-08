@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130107211459) do
+ActiveRecord::Schema.define(:version => 20130108220855) do
 
   create_table "cells", :force => true do |t|
     t.integer  "image_id"
@@ -41,7 +41,6 @@ ActiveRecord::Schema.define(:version => 20130107211459) do
 
   create_table "images", :force => true do |t|
     t.integer  "experiment_id"
-    t.string   "filename"
     t.datetime "created_at",    :null => false
     t.datetime "updated_at",    :null => false
     t.integer  "ord"
@@ -63,6 +62,14 @@ ActiveRecord::Schema.define(:version => 20130107211459) do
 
   add_index "paths_paths", ["pred_path_id"], :name => "index_paths_paths_on_pred_path_id"
   add_index "paths_paths", ["succ_path_id"], :name => "index_paths_paths_on_succ_path_id"
+
+  create_table "pictures", :force => true do |t|
+    t.integer  "image_id"
+    t.integer  "experiment_id"
+    t.string   "filename"
+    t.datetime "created_at",    :null => false
+    t.datetime "updated_at",    :null => false
+  end
 
   create_table "trees", :force => true do |t|
     t.integer  "experiment_id"
