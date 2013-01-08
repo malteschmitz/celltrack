@@ -21,7 +21,7 @@
 /doc
 
 # Ignore test data
-/db/seeds
+/import
 
 # Ignore image data
 /public/experiments
