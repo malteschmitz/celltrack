@@ -24,9 +24,18 @@ experiment = Experiment.create(:name => 'Test',
   :description => 'This experiment is used to test the db schema.')
   
 images = Image.create([
-  {:experiment => experiment, :ord => 1, :filename => 'exp001/img001.jpg'},
-  {:experiment => experiment, :ord => 2, :filename => 'exp001/img002.jpg'},
-  {:experiment => experiment, :ord => 3, :filename => 'exp001/img003.jpg'}
+  {:experiment => experiment, :ord => 1},
+  {:experiment => experiment, :ord => 2},
+  {:experiment => experiment, :ord => 3}
+])
+
+Picture.create([
+  {:experiment => experiment, :image => images[0],
+    :filename => 'refdataA-contrast_1/refdataA_C1_001.png'},
+  {:experiment => experiment, :image => images[1],
+    :filename => 'refdataA-contrast_1/refdataA_C1_002.png'},
+  {:experiment => experiment, :image => images[2],
+    :filename => 'refdataA-contrast_1/refdataA_C1_003.png'}
 ])
 
 trees = Tree.create([
