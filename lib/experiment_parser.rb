@@ -5,11 +5,11 @@ class ExperimentParser
   end
 
   # Parse a directory (specified by path) as an experiment
-  def initialize(experiment, path)
+  def initialize(experiment, path, picture_paths)
     @experiment = experiment
     
-    # Find cellmasks directory
-    pathToCellmasks = path + "/cellmasks"
+    # Find cellmasks and pictures directory
+    pathToCellmasks = IMPORT_ROOT.join(path, 'cellmasks')
     
     # maps import path numbers to database path ids
     @paths = {}
@@ -20,35 +20,49 @@ class ExperimentParser
     # list of images
     @images = []
     @image_id = Image.maximum(:id) || 0
+    # list of pictures
+    @pictures = []
+    @picture_id = Picture.maximum(:id) || 0
     # next free id in 
     @tree_id = Tree.maximum(:id) || 0
     # list of trees
     @trees = []
     
     # For each cellmask file, call parseCellmask method
-    files = Dir.entries(pathToCellmasks)
-    files = files.sort
-    files.each do |filename| 
-      file_path = pathToCellmasks + "/" + filename
+    files = Dir.entries(pathToCellmasks).sort
+    pictures = picture_paths.map do |p|
+      Dir.entries(PICTURE_ROOT.join(p)).sort.map { |q| File.join(p, q) }
+    end
+    files.each_with_index do |filename, i| 
+      file_path = pathToCellmasks.join(filename)
       if File.file?(file_path)
         puts file_path
-        file = File.open(pathToCellmasks + "/" + filename, "r")
-        parseCellmask(file, filename)
+        file = File.open(pathToCellmasks.join(filename), "r")
+        parseCellmask(file, pictures.map{ |p| p[i] }.compact)
         file.close
       end
     end
     
     # compute information of images
     image_array = []
-    @images.each do |id, file_name|
-      image_array << [id, experiment.id, file_name]
+    @images.each do |id|
+      image_array << [id, experiment.id]
     end
     # import images into databse
-    Image.import [:id, :experiment_id, :filename], image_array,
+    Image.import [:id, :experiment_id], image_array,
       :validate => false
+      
+    # compute information of pictures
+    picture_array = []
+    @pictures.each do |id, filename, image_id|
+      picture_array << [id, filename, image_id, experiment.id]
+    end
+    # import pictures into database
+    Picture.import [:id, :filename, :image_id, :experiment_id],
+      picture_array, :validate => false
     
     # Find adjacencyList in statusflags and import paths
-    pathToAdjacencyList = path + "/statusflags/adjacencyList"
+    pathToAdjacencyList = IMPORT_ROOT.join(path, 'statusflags', 'adjacencyList')
     adjacencyListFile = File.open(pathToAdjacencyList, "r")
     parseAdjacencyList(adjacencyListFile)
     adjacencyListFile.close
@@ -58,9 +72,14 @@ class ExperimentParser
   end
     
   # Parses a file as cellmask of the experiment
-  def parseCellmask(file, image_filename)
+  def parseCellmask(file, pictures)
     # create a new image
-    @images << [image_id = @image_id += 1, image_filename]
+    @images << image_id = @image_id += 1
+    
+    # create new pictures
+    pictures.each do |pic|
+      @pictures << [@picture_id += 1, pic, image_id]
+    end
     
     # maps import filed numbers to database cell ids
     cells = {}
@@ -206,12 +225,14 @@ class ExperimentParser
       :validate => false
   end
   
-  def self.parseCellExperiment(experiment, path)
-    ExperimentParser.new(experiment, path)
+  def self.parseCellExperiment(experiment, path, picture_paths)
+    ExperimentParser.new(experiment, path, picture_paths)
   end
   
   def self.malte
-    e = Experiment.create!
-    ExperimentParser.parseCellExperiment(e, 'db/seeds/malte')
+    e = Experiment.create!({
+      :name => 'Import test',
+      :description => 'This experiment was created using the import test call.'})
+    ExperimentParser.parseCellExperiment(e, 'malte', ['refdataA-contrast_1'])
   end
 end
