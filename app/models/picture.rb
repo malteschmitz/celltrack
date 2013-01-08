@@ -21,7 +21,7 @@
 # * A certain picture belongs to exactly one experiment, in which the
 #   corresponding data were obtained.
 
-class Image < ActiveRecord::Base
+class Picture < ActiveRecord::Base
   belongs_to :experiment
   belongs_to :image
 
