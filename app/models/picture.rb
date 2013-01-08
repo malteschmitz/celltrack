@@ -25,5 +25,5 @@ class Picture < ActiveRecord::Base
   belongs_to :experiment
   belongs_to :image
 
-  attr_accessible :experiment, :filename
+  attr_accessible :experiment, :image, :filename
 end
