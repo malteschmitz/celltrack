@@ -1,0 +1,22 @@
+# MySQL
+development:
+  adapter: mysql
+  encoding: utf8
+  database: celltrack_development
+  pool: 5
+  username: root
+  password: dummy
+test:
+  adapter: mysql
+  encoding: utf8
+  database: celltrack_test
+  pool: 5
+  username: root
+  password: dummy
+production:
+  adapter: mysql
+  encoding: utf8
+  database: celltrack_production
+  pool: 5
+  username: root
+  password: dummy

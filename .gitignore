@@ -32,3 +32,6 @@
 
 # Ignore compiled assets
 /public/assets
+
+# Ignore database.yml
+/config/database.yml
