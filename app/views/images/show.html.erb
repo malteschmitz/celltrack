@@ -5,9 +5,103 @@
   <%= submit_tag 'Go', :name => nil %>
 <% end %>
 
-<pre>
-  This should be a script-tag to really use it
-  var cells = <%=@image.cells.to_json %>
-</pre>
+<p><%=image_tag '/experiments/' + @image.pictures.first.filename, :id => 'picture' %></p>
+
+<canvas id="cellmask">
+  Your Browser does not support HTML5 canvas.
+</canvas>
+
+<script>
+  var cells = <%=@image.cells.to_json.html_safe %>
+
+  function decodeBase64Cellmask (data, len) {
+    var b64 = 
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+
+    var h = 0;                  // value of the current "hexet"
+    var i = 0;                  // position of the current "hexet"
+    var j = 0;                  // counter for bits 
+    var c = new Array(length);  // cellmask array
+    
+    do {
+      // Get binary digit representation of the current "hexet".
+      h = b64.indexOf(data.charAt(i++)).toString(2);
+      
+      // A "=" marks a fully padded 0-Byte at the end. So, ignore these.
+      if (h != "1000000") {
+        
+        // Write padding zeros to the cellmask array, if necessary.
+        for (var iDigit = h.length; iDigit < 6; iDigit++) {
+          if (j < len) {
+            c[j] = 0;
+            j++;
+          }
+        }
+        
+        // Copy binary digits to the cellmask array.
+        for (var iDigit = 0; iDigit < h.length; iDigit++) {
+          if (j < len) {
+            c[j] = h[iDigit];
+            j++;
+          }
+        }
+      }
+    } while (i < data.length);
+    
+    return c;
+  }
+
+  $(function() {
+    var canvas = $('#cellmask');
+    var picture = $('#picture');
+    var p = picture.position();
+    canvas.css({
+      position: 'absolute',
+      top: p.top + 'px',
+      left: p.left + 'px',
+      width: picture.width() + 'px',
+      height: picture.height() + 'px'
+    });
+    
+    var canvasCellmask = canvas.get(0);
+    canvasCellmask.width = picture.width();
+    canvasCellmask.height = picture.height();
+    var ctxCellmask = canvasCellmask.getContext('2d');
+    ctxCellmask.clearRect(0, 0, picture.width(), picture.height());
+
+    $.each(cells, function(index, cell) {
+      // Extract information from JSON.
+      var widthCellmask = cell.width;
+      var heightCellmask = cell.height;
+      var offsetLeft = cell.left;
+      var offsetTop = cell.top;
+      var mask = decodeBase64Cellmask(cell.mask, widthCellmask * heightCellmask);
+
+      // Get cellmask.
+      // TODO Implement color management.
+      var cellmask = new Array(widthCellmask * heightCellmask * 4);
+      for (var k = 0; k < mask.length; k++) {
+        if (mask[k] > 0) {
+          cellmask[4*k]   = 255;
+          cellmask[4*k+1] = 0;
+          cellmask[4*k+2] = 0;
+          cellmask[4*k+3] = 75;
+        }
+      }
+
+      // Create ImageData object of proper size.
+      var imgData = ctxCellmask.createImageData(widthCellmask, heightCellmask);
+
+      // Assign cellmask to ImageData object.
+      // Unfortunately, there is no other choice then doing this with a for loop.
+      for (var k = 0; k < imgData.data.length; k++) {
+        imgData.data[k] = cellmask[k];
+      }
+
+      // Draw cellmask on cellmask canvas.
+      ctxCellmask.putImageData(imgData, offsetLeft, offsetTop);
+    });
+  });
+</script>
 
 <p><%=link_to 'Back to experiment', experiment_url(@image.experiment.id) %></p>
