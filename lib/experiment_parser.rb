@@ -20,6 +20,7 @@ class ExperimentParser
     # list of images
     @images = []
     @image_id = Image.maximum(:id) || 0
+    @ord = 0
     # list of pictures
     @pictures = []
     @picture_id = Picture.maximum(:id) || 0
@@ -45,11 +46,11 @@ class ExperimentParser
     
     # compute information of images
     image_array = []
-    @images.each do |id|
-      image_array << [id, experiment.id]
+    @images.each do |id, ord|
+      image_array << [id, ord, experiment.id]
     end
     # import images into databse
-    Image.import [:id, :experiment_id], image_array,
+    Image.import [:id, :ord, :experiment_id], image_array,
       :validate => false
       
     # compute information of pictures
@@ -74,7 +75,7 @@ class ExperimentParser
   # Parses a file as cellmask of the experiment
   def parseCellmask(file, pictures)
     # create a new image
-    @images << image_id = @image_id += 1
+    @images << [image_id = @image_id += 1, @ord += 1]
     
     # create new pictures
     pictures.each do |pic|
