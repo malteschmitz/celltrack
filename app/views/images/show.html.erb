@@ -1,4 +1,4 @@
-<h2>Image <%=h @image.ord %> of experiment "<%=h @image.experiment.name %>"</h2>
+<h2>Image <%=h @image.ord %> of experiment “<%=h @image.experiment.name %>”</h2>
 
 <%= form_tag(goto_images_url, :method => :get, :id => 'image_selector_form') do %>
   <%= select_tag 'id', options_for_select(@image.experiment.images.collect {|i| ["Image #{i.ord}", i.id]}, @image.id) %>
@@ -14,44 +14,23 @@
 <script>
   var cells = <%=@image.cells.to_json.html_safe %>
 
-  function decodeBase64Cellmask (data, len) {
-    var b64 = 
-      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
-
-    var h = 0;                  // value of the current "hexet"
-    var i = 0;                  // position of the current "hexet"
-    var j = 0;                  // counter for bits 
-    var c = new Array(length);  // cellmask array
-    
-		// Remove line breaks from mask string.    
-    data = data.replace(/(\r\n|\n|\r)/gm, "");
-    
-    do {
-      // Get binary digit representation of the current "hexet".
-      h = b64.indexOf(data.charAt(i++)).toString(2);
-      
-      // A "=" marks a fully padded 0-Byte at the end. So, ignore these.
-      if (h != "1000000") {
-        
-        // Write padding zeros to the cellmask array, if necessary.
-        for (var iDigit = h.length; iDigit < 6; iDigit++) {
-          if (j < len) {
-            c[j] = 0;
-            j++;
-          }
-        }
-        
-        // Copy binary digits to the cellmask array.
-        for (var iDigit = 0; iDigit < h.length; iDigit++) {
-          if (j < len) {
-            c[j] = h[iDigit];
-            j++;
-          }
+  function base64decode(data) {
+    var b64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+    // b64 does not contain = at the end because this stands for the value
+    // 64 which has to be ignored. Linebreaks and any other character not listed
+    // in the above list have to be ignored, too.
+    var result = [];
+    var pos = 0;
+    data.split('').forEach(function(c) {
+      var value = b64.indexOf(c);
+      var i = 0;
+      if (value >= 0) {
+        for (i = 5; i >= 0; i --) {
+          result[pos++] = ((1 << i) & value) >> i;
         }
       }
-    } while (i < data.length);
-    
-    return c;
+    });
+    return result;
   }
 
   $(function() {
@@ -73,36 +52,22 @@
     ctxCellmask.clearRect(0, 0, picture.width(), picture.height());
 
     $.each(cells, function(index, cell) {
-      // Extract information from JSON.
-      var widthCellmask = cell.width;
-      var heightCellmask = cell.height;
-      var offsetLeft = cell.left;
-      var offsetTop = cell.top;
-      var mask = decodeBase64Cellmask(cell.mask, widthCellmask * heightCellmask);
+      var mask = base64decode(cell.mask);
 
-      // Get cellmask.
+      // Create ImageData object of proper size).
+      var imgData = ctxCellmask.createImageData(cell.width, cell.height);
       // TODO Implement color management.
-      var cellmask = new Array(widthCellmask * heightCellmask * 4);
-      for (var k = 0; k < mask.length; k++) {
+      for (var k = 0; k < cell.width * cell.height; k++) {
         if (mask[k] > 0) {
-          cellmask[4*k]   = 96;
-          cellmask[4*k+1] = 0;
-          cellmask[4*k+2] = 0;
-          cellmask[4*k+3] = 128;
+          imgData.data[4*k]   = 96;
+          imgData.data[4*k+1] = 0;
+          imgData.data[4*k+2] = 0;
+          imgData.data[4*k+3] = 128;
         }
       }
 
-      // Create ImageData object of proper size.
-      var imgData = ctxCellmask.createImageData(widthCellmask, heightCellmask);
-
-      // Assign cellmask to ImageData object.
-      // Unfortunately, there is no other choice then doing this with a for loop.
-      for (var k = 0; k < imgData.data.length; k++) {
-        imgData.data[k] = cellmask[k];
-      }
-
       // Draw cellmask on cellmask canvas.
-      ctxCellmask.putImageData(imgData, offsetLeft, offsetTop);
+      ctxCellmask.putImageData(imgData, cell.left, cell.top);
     });
   });
 </script>
