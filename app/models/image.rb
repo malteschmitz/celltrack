@@ -5,6 +5,8 @@
 #  id            :integer          not null, primary key
 #  experiment_id :integer
 #  ord           :integer
+#  width         :integer
+#  height        :integer
 #  created_at    :datetime         not null
 #  updated_at    :datetime         not null
 #
@@ -12,7 +14,10 @@
 # 
 # An image is a two-dimensional matrix respresentation, which assigns a cell
 # to every pixel of a certain microscopy photograph. An image refers to a
-# specific point in time. Images are ordered using the ord column. 
+# specific point in time. Images are ordered using the ord column. The
+# dimension of the image in pixels is stored in the attributes with and height.
+# Every picture of this image has to have this dimension (or at least the
+# same aspect ratio as this dimension). 
 # 
 # == Associations
 #

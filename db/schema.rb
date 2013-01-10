@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130108231055) do
+ActiveRecord::Schema.define(:version => 20130110233719) do
 
   create_table "cells", :force => true do |t|
     t.integer  "image_id"
@@ -44,6 +44,8 @@ ActiveRecord::Schema.define(:version => 20130108231055) do
     t.datetime "created_at",    :null => false
     t.datetime "updated_at",    :null => false
     t.integer  "ord"
+    t.integer  "width"
+    t.integer  "height"
   end
 
   add_index "images", ["experiment_id"], :name => "index_images_on_experiment_id"
