@@ -44,45 +44,22 @@ function renderCell(cell, ctxCellmask, isMarked) {
   ctxCellmask.putImageData(image, cell.left, cell.top);
 }
 
-function getNearestCell(event, canvasCellmask, ctxCellmask) {
-  // Get x and y coordinates of mouse pointer on the canvas.
-  // Supported browsers (tested): Firefox, Opera, Chrome
-  // Not supported browsers (tested): Internet Explorer
-  var x = 0;
-  var y = 0;
-  if (event.layerX == undefined && event.layerY == undefined) {	// Opera
-    x = event.offsetX + 1;
-	y = event.offsetY + 1;
-  } else {														// all other
-	x = event.layerX + 1;
-	y = event.layerY + 1;
-  }
-  
+function getNearestCell(x, y) {
   // Find nearest cell to that coordinates via minimum of Euclidean distances.
   var minDistance = Infinity;
-  var idx = 0;
+  var result;
   $.each(cells, function(index, cell) {
-    // Calculate Euclidean distance.	      
+    // Calculate Euclidean distance.          
     var distance = Math.sqrt(Math.pow(x - cell.center_x, 2) + 
       Math.pow(y - cell.center_y, 2));
 
     // Update minimum.
-	if (distance < minDistance) {
-	  minDistance = distance;
-	  idx = index;
-	}
+    if (distance < minDistance) {
+      minDistance = distance;
+      result = cell;
+    }
   });
-      
-  if (idx != lastChosenCell) {
-    // Re-render last chosen cell in standard color.
-    renderCell(cells[lastChosenCell], ctxCellmask, false);  
-
-    // Render new cell in special color.
-    renderCell(cells[idx], ctxCellmask, true);  
-  }
-
-  // Update last chosen cell.
-  lastChosenCell = idx;
+  return result;
 }
 
 $(window).load(function () {
@@ -110,10 +87,24 @@ $(window).load(function () {
       $.each(cells, function(index, cell) { 
         renderCell(cell, ctxCellmask, false);
       });
-    
-      // Add event listener on canvas element.
-      canvasCellmask.addEventListener("mousedown", function(event){
-        getNearestCell(event, canvasCellmask, ctxCellmask)}, false);
+      
+      var currentCell;
+      
+      // Add event listener on canvas element
+      canvas.click(function(e){
+        var offset = canvas.offset();
+        var x = e.pageX - offset.left;
+        var y = e.pageY - offset.top;
+        var cell = getNearestCell(x,y);
+        if (currentCell) {
+          // Re-render last chosen cell in standard color.
+          renderCell(currentCell, ctxCellmask, false);
+        }      
+        // Render new cell in special color.
+        renderCell(cell, ctxCellmask, true);  
+        // Update last chosen cell.
+        currentCell = cell;
+      });
     }
   }
 });
