@@ -41,7 +41,7 @@ function base64decode1(data) {
       
       // Copy binary digits to the cellmask array.
       for (var iDigit = 0; iDigit < h.length; iDigit++) {
-        c[j] = h[iDigit];
+        c[j] = +h[iDigit];
         j++;
       }
     }
