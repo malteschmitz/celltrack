@@ -29,11 +29,11 @@ function renderCell(cell, ctxCellmask, isMarked) {
   for (var k = 0; k < cell.width * cell.height; k++) {
     if (mask[k] > 0) {
       if (isMarked) {
-    	image.data[4*k]   = 0;
-    	image.data[4*k+2] = 96;
+        image.data[4*k]   = 0;
+        image.data[4*k+2] = 96;
       } else {
-    	image.data[4*k]   = 96;
-    	image.data[4*k+2] = 0;
+        image.data[4*k]   = 96;
+        image.data[4*k+2] = 0;
       }
       image.data[4*k+1] = 0;
       image.data[4*k+3] = 128;
@@ -72,7 +72,7 @@ function getNearestCell(event, canvasCellmask, ctxCellmask) {
 	  idx = index;
 	}
   });
-  	
+      
   if (idx != lastChosenCell) {
     // Re-render last chosen cell in standard color.
     renderCell(cells[lastChosenCell], ctxCellmask, false);  
@@ -88,32 +88,32 @@ function getNearestCell(event, canvasCellmask, ctxCellmask) {
 $(window).load(function () {
   if (cells) {
     // Initialize picture and canvas element.
-	var picture = $('#picture');
-	if (picture.length > 0) {
-	  var canvas = $('<canvas>',{'id':'cellmask'});
-	  picture.after(canvas);
-	  var p = picture.position();
-	  canvas.css({
-	    position: 'absolute',
-	    top: p.top + 'px',
-	    left: p.left + 'px',
-	    width: picture.width() + 'px',
-	    height: picture.height() + 'px'
-	  });
-	  var canvasCellmask = canvas.get(0);
-	  canvasCellmask.width = picture.width();
-	  canvasCellmask.height = picture.height();
-	  var ctxCellmask = canvasCellmask.getContext('2d');
-	  ctxCellmask.clearRect(0, 0, picture.width(), picture.height());
-	
-	  // Render all cell masks.
-	  $.each(cells, function(index, cell) { 
-		renderCell(cell, ctxCellmask, false);
-	  });
+    var picture = $('#picture');
+    if (picture.length > 0) {
+      var canvas = $('<canvas>',{'id':'cellmask'});
+      picture.after(canvas);
+      var p = picture.position();
+      canvas.css({
+        position: 'absolute',
+        top: p.top + 'px',
+        left: p.left + 'px',
+        width: picture.width() + 'px',
+        height: picture.height() + 'px'
+      });
+      var canvasCellmask = canvas.get(0);
+      canvasCellmask.width = picture.width();
+      canvasCellmask.height = picture.height();
+      var ctxCellmask = canvasCellmask.getContext('2d');
+      ctxCellmask.clearRect(0, 0, picture.width(), picture.height());
+    
+      // Render all cell masks.
+      $.each(cells, function(index, cell) { 
+        renderCell(cell, ctxCellmask, false);
+      });
     
       // Add event listener on canvas element.
       canvasCellmask.addEventListener("mousedown", function(event){
-    	getNearestCell(event, canvasCellmask, ctxCellmask)}, false);
+        getNearestCell(event, canvasCellmask, ctxCellmask)}, false);
     }
   }
 });
