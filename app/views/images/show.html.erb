@@ -5,7 +5,7 @@
   <%= submit_tag 'Go', :name => nil %>
 <% end %>
 
-<p><%=image_tag '/experiments/' + @image.pictures.first.filename, :id => 'picture' %></p>
+<p><%=image_tag '/experiments/' + @image.pictures.first.filename, :id => 'picture', :width => @image.width, :height => @image.height %></p>
 
 <script>
   var cells = <%=@image.cells.to_json.html_safe %>;
