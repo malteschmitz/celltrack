@@ -44,18 +44,20 @@ function renderCell(cell, ctxCellmask, isMarked) {
   ctxCellmask.putImageData(image, cell.left, cell.top);
 }
 
-function getNearestCell(x, y) {
-  // Find nearest cell to that coordinates via minimum of Euclidean distances.
-  var minDistance = Infinity;
-  var result;
-  $.each(cells, function(index, cell) {
-    // Calculate Euclidean distance.          
-    var distance = Math.sqrt(Math.pow(x - cell.center_x, 2) + 
-      Math.pow(y - cell.center_y, 2));
+// Calculate Euclidean distance.
+function distance(x1,y1,x2,y2) {
+  return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
+}
 
+// Find nearest cell to that coordinates via minimum of Euclidean distances.
+function getNearestCell(x, y) {
+  var min = Infinity;
+  var result;
+  $.each(cells, function(index, cell) {              
+    var d = distance(x, y, cell.center_x, cell.center_y);
     // Update minimum.
-    if (distance < minDistance) {
-      minDistance = distance;
+    if (d < min) {
+      min = d;
       result = cell;
     }
   });
@@ -99,11 +101,13 @@ $(window).load(function () {
         if (currentCell) {
           // Re-render last chosen cell in standard color.
           renderCell(currentCell, ctxCellmask, false);
-        }      
-        // Render new cell in special color.
-        renderCell(cell, ctxCellmask, true);  
-        // Update last chosen cell.
-        currentCell = cell;
+        }
+        if (distance(x, y, cell.center_x, cell.center_y) < 25) {    
+          // Render new cell in special color.
+          renderCell(cell, ctxCellmask, true);  
+          // Update last chosen cell.
+          currentCell = cell;
+        }
       });
     }
   }
