@@ -22,8 +22,7 @@ function renderCell(cell, ctxCellmask, isMarked) {
   var mask = base64decode(cell.mask);
   
   // Create ImageData object of proper size.
-  var image = ctxCellmask.getImageData(cell.left, cell.top, cell.width, 
-    cell.height);
+  var image = ctxCellmask.createImageData(cell.width, cell.height);
 
   // Update color values. If cell is marked, render blue else render red.
   for (var k = 0; k < cell.width * cell.height; k++) {
