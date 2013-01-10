@@ -1,21 +1,35 @@
-function base64decode(data) {
+var base64decode = (function() {
   var b64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
   // b64 does not contain = at the end because this stands for the value
   // 64 which has to be ignored. Linebreaks and any other character not listed
   // in the above list have to be ignored, too.
-  var result = [];
-  var pos = 0;
-  data.split('').forEach(function(c) {
-    var value = b64.indexOf(c);
-    var i = 0;
-    if (value >= 0) {
-      for (i = 5; i >= 0; i --) {
-        result[pos++] = ((1 << i) & value) >> i;
+  var i;
+  var t = {};
+  for (i = 0; i < b64.length; i++) {
+    var result = [];
+    var pos = 0;
+    var k;
+    for (k = 5; k >= 0; k --) {
+      result[pos++] = ((1 << k) & i) >> k;
+    }
+    t[b64.charAt(i)] = result;
+  }
+  return function (data) {
+    var result = [];
+    var pos = 0;
+    var i;
+    for (i = 0; i < data.length; i++) {
+      var value = t[data.charAt(i)];
+      var j;
+      if (value) {
+        for (j = 0; j < 6; j++) {
+          result[pos++] = value[j];
+        }
       }
     }
-  });
-  return result;
-}
+    return result
+  }
+}());
 
 function renderCell(cell, ctxCellmask, isMarked) {
   // Decode cellmask.
