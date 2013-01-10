@@ -46,17 +46,17 @@ function renderCell(cell, ctxCellmask, isMarked) {
 
 function getNearestCell(event, canvasCellmask, ctxCellmask) {
   // Get x and y coordinates of mouse pointer on the canvas.
+  // Supported browsers (tested): Firefox, Opera, Chrome
+  // Not supported browsers (tested): Internet Explorer
   var x = 0;
   var y = 0;
-  if (event.x == undefined && event.y == undefined) {	// Firefox
-    x = event.clientX;
-	y = event.clientY;
-  } else {												// all other browsers			
-    x = event.x;
-	y = event.y;
+  if (event.layerX == undefined && event.layerY == undefined) {	// Opera
+    x = event.offsetX + 1;
+	y = event.offsetY + 1;
+  } else {														// all other
+	x = event.layerX + 1;
+	y = event.layerY + 1;
   }
-  x -= canvasCellmask.offsetLeft - 1;
-  y -= canvasCellmask.offsetTop - 1;
   
   // Find nearest cell to that coordinates via minimum of Euclidean distances.
   var minDistance = Infinity;
