@@ -1,3 +1,92 @@
+// first refactored version using shifts with for
+function base64decode5(data) {
+  var b64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+  // b64 does not contain = at the end because this stands for the value
+  // 64 which has to be ignored. Linebreaks and any other character not listed
+  // in the above list have to be ignored, too.
+  var result = [];
+  var pos = 0;
+  var i;
+  for (i = 0; i < data.length; i++) {
+    var value = b64.indexOf(data.charAt(i));
+    var k = 0;
+    if (value >= 0) {
+      for (k = 5; k >= 0; k --) {
+        result[pos++] = ((1 << k) & value) >> k;
+      }
+    }
+  }
+  return result;
+}
+
+// second refactored version using shifts and caching with for
+var base64decode4 = (function() {
+  var b64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+  // b64 does not contain = at the end because this stands for the value
+  // 64 which has to be ignored. Linebreaks and any other character not listed
+  // in the above list have to be ignored, too.
+  var i;
+  var t = {};
+  for (i = 0; i < b64.length; i++) {
+    var result = [];
+    var pos = 0;
+    var k;
+    for (k = 5; k >= 0; k --) {
+      result[pos++] = ((1 << k) & i) >> k;
+    }
+    t[b64.charAt(i)] = result;
+  }
+  return function (data) {
+    var result = [];
+    var pos = 0;
+    var i;
+    for (i = 0; i < data.length; i++) {
+      var value = t[data.charAt(i)];
+      var j;
+      if (value) {
+        for (j = 0; j < 6; j++) {
+          result[pos++] = value[j];
+        }
+      }
+    }
+    return result
+  }
+}());
+
+// second refactored version using shifts and caching
+var base64decode3 = (function() {
+  var b64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+  // b64 does not contain = at the end because this stands for the value
+  // 64 which has to be ignored. Linebreaks and any other character not listed
+  // in the above list have to be ignored, too.
+  var i;
+  var t = {};
+  for (i = 0; i < b64.length; i++) {
+    var result = [];
+    var pos = 0;
+    var k;
+    for (k = 5; k >= 0; k --) {
+      result[pos++] = ((1 << k) & i) >> k;
+    }
+    t[b64.charAt(i)] = result;
+  }
+  return function (data) {
+    var result = [];
+    var pos = 0;
+    data.split('').forEach(function(c) {
+      var value = t[c];
+      var i;
+      if (value) {
+        for (i = 0; i < 6; i++) {
+          result[pos++] = value[i];
+        }
+      }
+    });
+    return result
+  }
+}());
+
+// first refactored version using shifts
 function base64decode2(data) {
   var b64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
   // b64 does not contain = at the end because this stands for the value
@@ -17,6 +106,7 @@ function base64decode2(data) {
   return result;
 }
 
+// first version using toString(2)
 function base64decode1(data) {
   var b64 = 
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
@@ -170,4 +260,7 @@ var decoded = [0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1,
 // test, if functions do the correct thing
 compare(base64decode1(encoded), decoded);
 compare(base64decode2(encoded), decoded);
+compare(base64decode3(encoded), decoded);
+compare(base64decode4(encoded), decoded);
+compare(base64decode5(encoded), decoded);
 console.log('correctness tests done');

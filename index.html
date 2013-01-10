@@ -18,6 +18,21 @@
       base64decode2(encoded);
     }
   });
+  JSLitmus.test('second refactored version using shifts and caching', function(count) {
+    while (count--) {
+      base64decode3(encoded);
+    }
+  });
+  JSLitmus.test('second refactored version using shifts and caching with for', function(count) {
+    while (count--) {
+      base64decode4(encoded);
+    }
+  });
+  JSLitmus.test('first refactored version using shifts with for', function(count) {
+    while (count--) {
+      base64decode5(encoded);
+    }
+  });
 </script>
 </body>
 </html>
