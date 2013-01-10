@@ -46,12 +46,13 @@ class ExperimentParser
     
     # compute information of images
     image_array = []
-    @images.each do |id, ord|
-      image_array << [id, ord, experiment.id]
+    @images.each do |id, ord, width, height|
+      image_array << [id, ord, width, height, experiment.id]
     end
     # import images into databse
-    Image.import [:id, :ord, :experiment_id], image_array,
-      :validate => false
+    p image_array
+    Image.import [:id, :ord, :width, :height, :experiment_id],
+      image_array, :validate => false
       
     # compute information of pictures
     picture_array = []
@@ -74,8 +75,18 @@ class ExperimentParser
     
   # Parses a file as cellmask of the experiment
   def parseCellmask(file, pictures)
+    # import data from file to variable data
+    data = []
+    file.each do |line|
+      data << line.split(',').map(&:to_i)
+    end
+    
+    # set current row and column count
+    rows = data.length
+    cols = data.first.length
+    
     # create a new image
-    @images << [image_id = @image_id += 1, @ord += 1]
+    @images << [image_id = @image_id += 1, @ord += 1, cols, rows]
     
     # create new pictures
     pictures.each do |pic|
@@ -90,16 +101,6 @@ class ExperimentParser
     minY = {}
     maxX = {}
     maxY = {}
-    
-    # import data from file to variable data
-    data = []
-    file.each do |line|
-      data << line.split(',').map(&:to_i)
-    end
-    
-    # set current row and column count
-    rows = data.length
-    cols = data.first.length
     
     # parse each element of data
     0.upto(rows-1) do |y|
