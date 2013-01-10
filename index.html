@@ -1,0 +1,23 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>base64 tests</title>
+</head>
+<body>
+<h1>base64 tests</h1>
+<script src="base64tests.js"></script>
+<script src="JSLitmus.js"></script>
+<script>
+  JSLitmus.test('first version using toString(2)', function(count) {
+    while (count--) {
+      base64decode1(encoded);
+    }
+  });
+  JSLitmus.test('first refactored version using shifts', function(count) {
+    while (count--) {
+      base64decode2(encoded);
+    }
+  });
+</script>
+</body>
+</html>
