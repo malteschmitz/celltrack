@@ -19,8 +19,6 @@
 #   several images.
 # * A certain experiment has a set of images. These are the main data, which is
 #   collected during an experiment.
-# * A certain experiment has a set of coordinates. These describe, for a certain
-#   image, which cell can be seen at which position.
 # * A certain experiment has a set of trees. These describe the developments of 
 #   all biological entities, which has been observed in this experiment.
 # * A certain experiment has a set of paths. These actually 'form' the single
@@ -29,7 +27,6 @@
 class Experiment < ActiveRecord::Base
   has_many :cells
   has_many :images
-  has_many :coordinates
   has_many :trees
   has_many :paths
 

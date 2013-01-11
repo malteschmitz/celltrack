@@ -24,8 +24,6 @@
 # * A certain image belongs to exactly one experiment, in which the
 #   corresponding data were obtained.
 # * A certain image has many cells, which can be observed in this image.
-# * A certain image has many coordinates, which describe positions of cells in
-#   this images.
 # * A certain image has many pictures, which contain the filename of the
 #   actual image files. All pictures of one image show the same cells at the
 #   same time. They may differ e.g. in the contrast.
