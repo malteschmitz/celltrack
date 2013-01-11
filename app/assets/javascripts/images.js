@@ -78,7 +78,7 @@ function getNearestCell(x, y) {
 }
 
 $(function () {
-  if (cells) {
+  if (typeof cells !== 'undefined') {
     // Initialize picture and canvas element.
     var picture = $('#picture');
     if (picture.length > 0) {
