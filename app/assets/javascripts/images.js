@@ -31,12 +31,42 @@ var base64decode = (function() {
   }
 }());
 
-function renderCell(cell, ctxCellmask, isMarked) {
+function renderAllCells(canvasCellmask, ctxCellmask) {
+  // Initialize ImageData object.	
+  var image = ctxCellmask.createImageData(canvasCellmask.width, 
+	canvasCellmask.height);  
+	
+  $.each(cells, function(index, cell) {
+	// Decode cellmask.
+    var mask = base64decode(cell.mask);
+    
+    // Update color values.
+    for (var row = 0; row < cell.height; row++) {
+      for (var col = 0; col < cell.width; col++) {
+    	var k = row * cell.width + col;
+        if (mask[k] > 0) {
+          var idx = 4 * ((cell.top + row) * canvasCellmask.width + 
+        	cell.left + col);
+          image.data[idx]   = 96;
+          image.data[idx+1] = 0;
+          image.data[idx+2] = 0;
+          image.data[idx+3] = 128;
+        }
+      }
+    }   
+  });
+  
+  // Draw cellmask on cellmask canvas.
+  ctxCellmask.putImageData(image, 0, 0);
+}
+
+function renderSingleCell(cell, ctxCellmask, isMarked) {
   // Decode cellmask.
   var mask = base64decode(cell.mask);
   
   // Create ImageData object of proper size.
-  var image = ctxCellmask.createImageData(cell.width, cell.height);
+  var image = ctxCellmask.getImageData(cell.left, cell.top, cell.width, 
+	cell.height);
 
   // Update color values. If cell is marked, render blue else render red.
   for (var k = 0; k < cell.width * cell.height; k++) {
@@ -58,7 +88,7 @@ function renderCell(cell, ctxCellmask, isMarked) {
 }
 
 // Calculate Euclidean distance.
-function distance(x1,y1,x2,y2) {
+function distance(x1, y1, x2, y2) {
   return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
 }
 
@@ -99,9 +129,7 @@ $(function () {
       ctxCellmask.clearRect(0, 0, picture.width(), picture.height());
     
       // Render all cell masks.
-      $.each(cells, function(index, cell) { 
-        renderCell(cell, ctxCellmask, false);
-      });
+      renderAllCells(canvasCellmask, ctxCellmask);
       
       var currentCell;
       
@@ -113,11 +141,11 @@ $(function () {
         var cell = getNearestCell(x,y);
         if (currentCell) {
           // Re-render last chosen cell in standard color.
-          renderCell(currentCell, ctxCellmask, false);
+          renderSingleCell(currentCell, ctxCellmask, false);
         }
         if (distance(x, y, cell.center_x, cell.center_y) < 25) {    
           // Render new cell in special color.
-          renderCell(cell, ctxCellmask, true);  
+          renderSingleCell(cell, ctxCellmask, true);  
           // Update last chosen cell.
           currentCell = cell;
         }

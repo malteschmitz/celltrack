@@ -9,7 +9,6 @@
 
 <script>
   var cells = <%=@image.cells.to_json.html_safe %>;
-  var lastChosenCell = 0;
 </script>
 
 <p><%=link_to 'Back to experiment', experiment_url(@image.experiment.id) %></p>
