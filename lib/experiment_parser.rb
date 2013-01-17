@@ -7,6 +7,16 @@ class ExperimentParser
   # Parse a directory (specified by path) as an experiment
   def initialize(experiment, path, picture_paths)
     @experiment = experiment
+
+    if File.file?(path)
+      # TODO handle zip file for import
+      # Zip::ZipFile::open(uploaded_file.tempfile) do |zf|
+      #   p zf.select {|f| f.directory?}
+      #   p zf.dir.entries('.') # => ["cellmasks", "genealogic-trees", "statusflags"]
+      #   p zf.dir.entries('cellmasks') # => ["refdataA_txt", ...]
+      #   p zf.dir.entries('statusflags') # => ["adjacencyList", "beginning", "border_begin", "border_end", "coupled", "ending", "lost_begin", "lost_end", "mitoses"]
+      # end
+    end
     
     # Find cellmasks and pictures directory
     pathToCellmasks = IMPORT_ROOT.join(path, 'cellmasks')

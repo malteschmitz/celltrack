@@ -1,4 +1,4 @@
-<h1>Upload a new experiment</h1>
+<h1>Import a new experiment</h1>
 
 <%= form_for(@experiment) do |f| %>
   <% if @experiment.errors.any? %>
@@ -19,11 +19,20 @@
   </div>
   <div class="field">
     <%= f.label :description %><br />
-    <%= f.text_area :description %>
+    <%= f.text_area :description, :rows => 4 %>
+  </div>
+  <p>Select either a file or folder alread present on the server <strong>or</strong> select a ZIP file which will be uploaded to the server. Picture files have to be present already on the server, they cannot be uploaded.</p>
+  <div class="field">
+    <%= label_tag :import_file, 'Select ZIP file or folder containing the data (present on the server in the import directory)' %><br />
+    <%= select_tag :import_file, options_for_select(@import_files.map{ |x| [x,x] }), :size => 5, :prompt => '[None]' %>
   </div>
   <div class="field">
-    <%= f.label :zip_file %><br />
-    <%= f.file_field :zip_file %>
+    <%= label_tag :upload_file, 'Select ZIP file containing the data (which will be uploaded to the server)' %><br />
+    <%= file_field_tag :upload_file %>
+  </div>
+  <div class="field">
+    <%= label_tag 'picture_paths[]', 'Select the folders containing the pictures (present on the server in the public/experiments directory) (Press Ctrl or Shift to select multiple directories.)' %><br />
+    <%= select_tag 'picture_paths[]', options_for_select(@picture_paths.map{ |x| [x,x] }), :size => 5, :prompt => '[None]', :multiple => :true %>
   </div>
   <div class="actions">
     <%= f.submit %>

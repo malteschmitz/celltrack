@@ -31,14 +31,4 @@ class Experiment < ActiveRecord::Base
   has_many :paths
 
   attr_accessible :description, :name
-  
-  def import(uploaded_file)
-    Zip::ZipFile::open(uploaded_file.tempfile) do |zf|
-      debugger
-      # p zf.select {|f| f.directory?}
-      # p zf.dir.entries('.') # => ["cellmasks", "genealogic-trees", "statusflags"]
-      # p zf.dir.entries('cellmasks') # => ["refdataA_txt", ...]
-      # p zf.dir.entries('statusflags') # => ["adjacencyList", "beginning", "border_begin", "border_end", "coupled", "ending", "lost_begin", "lost_end", "mitoses"]
-    end
-  end
 end
