@@ -240,11 +240,4 @@ class ExperimentParser
   def self.parseCellExperiment(experiment, path, picture_paths)
     ExperimentParser.new(experiment, path, picture_paths)
   end
-  
-  def self.malte
-    e = Experiment.create!({
-      :name => 'Import test',
-      :description => 'This experiment was created using the import test call.'})
-    ExperimentParser.parseCellExperiment(e, 'malte', ['refdataA-contrast_1'])
-  end
 end

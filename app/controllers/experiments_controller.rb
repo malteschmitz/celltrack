@@ -56,10 +56,6 @@ class ExperimentsController < ApplicationController
     respond_with(@experiment)
   end
   
-  def malte
-    ExperimentParser.malte
-  end
-  
   private
   
   def compute_paths
