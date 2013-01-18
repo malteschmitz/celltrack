@@ -60,7 +60,6 @@ class ExperimentParser
       image_array << [id, ord, width, height, experiment.id]
     end
     # import images into databse
-    p image_array
     Image.import [:id, :ord, :width, :height, :experiment_id],
       image_array, :validate => false
       
