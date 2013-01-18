@@ -107,6 +107,17 @@ function getNearestCell(x, y) {
   return result;
 }
 
+function adjustCanvasPosition(picture, canvas) {
+  var p = picture.position();
+  canvas.css({
+    position: 'absolute',
+    top: p.top + 'px',
+    left: p.left + 'px',
+    width: picture.width() + 'px',
+    height: picture.height() + 'px'
+  });
+}
+
 $(function () {
   if (typeof cells !== 'undefined') {
     // Initialize picture and canvas element.
@@ -114,13 +125,9 @@ $(function () {
     if (picture.length > 0) {
       var canvas = $('<canvas>',{'id':'cellmask'});
       picture.after(canvas);
-      var p = picture.position();
-      canvas.css({
-        position: 'absolute',
-        top: p.top + 'px',
-        left: p.left + 'px',
-        width: picture.width() + 'px',
-        height: picture.height() + 'px'
+      adjustCanvasPosition(picture, canvas);
+      $(window).load(function() {
+        adjustCanvasPosition(picture, canvas);
       });
       var canvasCellmask = canvas.get(0);
       canvasCellmask.width = picture.width();
