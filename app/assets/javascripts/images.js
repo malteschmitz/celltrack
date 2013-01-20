@@ -177,7 +177,11 @@ $(function () {
       });
       
       var image_selector = $('#image_id');
+      var prev_image_button = $('#prev_image_id');
+      var next_image_button = $('#next_image_id');
+      var play_button = $('#play');
       image_selector.change(function () {
+        // request new image
         $.ajax({
           dataType: 'json',
           url: '/images/' + image_selector.val(),
@@ -185,6 +189,7 @@ $(function () {
             image = data;
             renderAllCells(canvas, image);
             $('#image_title_ord').html(image.ord);
+            // update picture
             var old_picture_ord = picture_selector.prop('selectedIndex');
             picture_selector.html('');
             $.each(image.pictures, function(index, p) {
@@ -193,9 +198,57 @@ $(function () {
               picture_selector.append('<option value="' + value + '">' + display + '</option>');
             });
             picture_selector.prop('selectedIndex', old_picture_ord);
-            picture.attr('src', picture_selector.val());
+            picture_selector.change();
           }
         });
+        // enable / disable buttons
+        var index = image_selector.prop('selectedIndex');
+        if (index == 0) {
+          prev_image_button.attr('disabled', 'disabled');
+        } else {
+          prev_image_button.removeAttr('disabled');
+        }
+        if (+index === +image_selector.prop('length') - 1) {
+          next_image_button.add(play_button).attr('disabled', 'disabled');
+        } else {
+          next_image_button.add(play_button).removeAttr('disabled');
+        }
+      });
+      
+      prev_image_button.click(function() {
+        image_selector.prop('selectedIndex', image_selector.prop('selectedIndex') - 1);
+        image_selector.change();
+        return false
+      });
+      
+      next_image_button.click(function() {
+        image_selector.prop('selectedIndex', image_selector.prop('selectedIndex') + 1);
+        image_selector.change();
+        return false
+      });
+      
+      var play_speed_selector = $('#play_speed');
+      var playing = false;
+      var click_next = function () {
+        if (!next_image_button.attr('disabled')) {
+          next_image_button.click();
+        }
+        if (!next_image_button.attr('disabled')) {
+          playing = window.setTimeout(click_next, +play_speed_selector.val());
+        } else {
+          play_button.html('Play');
+        }
+      };
+      play_button.click(function () {
+        if (playing) {
+          window.clearTimeout(playing);
+          playing = false;
+          play_button.html('Play');
+        } else {
+          play_button.html('Stop');
+          click_next();
+        }
+        return false
       });
     }
   }

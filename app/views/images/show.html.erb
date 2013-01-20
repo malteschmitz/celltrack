@@ -2,7 +2,12 @@
 
 <%= form_tag(nil, :id => 'main_form') do %>
   <%= label_tag 'image_id', 'Image' %>
+  <%= button_tag '&lArr;'.html_safe, :id => 'prev_image_id', :disabled => @image.id == @image.experiment.images.first.id %>
   <%= select_tag 'image_id', options_for_select(@image.experiment.images.collect {|i| ["Image #{i.ord}", i.id]}, @image.id) %>
+    <%= button_tag '&rArr;'.html_safe, :id => 'next_image_id', :disabled => @image.id == @image.experiment.images.last.id %>
+  |
+  <%= select_tag 'play_speed', options_for_select([['200ms', '200'], ['500ms', '500'], ['1s', '1000'], ['2s', '2000'], ['5s', '5000']], '1000') %>
+  <%= button_tag 'Play', :id => 'play', :disabled => @image.id == @image.experiment.images.last.id %>
   |
   <%= check_box_tag 'show_cellmasks', '1', true %>
   <%= label_tag 'show_cellmasks', 'Show Cellmasks' %>
