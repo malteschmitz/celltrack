@@ -31,12 +31,17 @@ var base64decode = (function() {
   }
 }());
 
-function renderAllCells(canvasCellmask, ctxCellmask) {
+function renderAllCells(canvas, image) {
+  var canvasCellmask = canvas.get(0);
+  canvasCellmask.width = image.width;
+  canvasCellmask.height = image.height;
+  var ctxCellmask = canvasCellmask.getContext('2d');
+  ctxCellmask.clearRect(0, 0, image.width, image.height);
+
   // Initialize ImageData object.	
-  var image = ctxCellmask.createImageData(canvasCellmask.width, 
-	canvasCellmask.height);  
+  var img = ctxCellmask.createImageData(image.width, image.height);  
 	
-  $.each(cells, function(index, cell) {
+  $.each(image.cells, function(index, cell) {
 	// Decode cellmask.
     var mask = base64decode(cell.mask);
     
@@ -47,20 +52,22 @@ function renderAllCells(canvasCellmask, ctxCellmask) {
         if (mask[k] > 0) {
           var idx = 4 * ((cell.top + row) * canvasCellmask.width + 
         	cell.left + col);
-          image.data[idx]   = 96;
-          image.data[idx+1] = 0;
-          image.data[idx+2] = 0;
-          image.data[idx+3] = 128;
+          img.data[idx]   = 96;
+          img.data[idx+1] = 0;
+          img.data[idx+2] = 0;
+          img.data[idx+3] = 128;
         }
       }
     }   
   });
   
   // Draw cellmask on cellmask canvas.
-  ctxCellmask.putImageData(image, 0, 0);
+  ctxCellmask.putImageData(img, 0, 0);
 }
 
-function renderSingleCell(cell, ctxCellmask, isMarked) {
+function renderSingleCell(canvas, cell, isMarked) {
+  var ctxCellmask = canvas.get(0).getContext('2d');
+
   // Decode cellmask.
   var mask = base64decode(cell.mask);
   
@@ -93,7 +100,7 @@ function distance(x1, y1, x2, y2) {
 }
 
 // Find nearest cell to that coordinates via minimum of Euclidean distances.
-function getNearestCell(x, y) {
+function getNearestCell(x, y, cells) {
   var min = Infinity;
   var result;
   $.each(cells, function(index, cell) {              
@@ -107,36 +114,33 @@ function getNearestCell(x, y) {
   return result;
 }
 
-function adjustCanvasPosition(picture, canvas) {
+function adjustCanvasPosition(picture, image, canvas) {
   var p = picture.position();
   canvas.css({
     position: 'absolute',
     top: p.top + 'px',
     left: p.left + 'px',
-    width: picture.width() + 'px',
-    height: picture.height() + 'px'
+    width: image.width + 'px',
+    height: image.height + 'px'
   });
 }
 
 $(function () {
-  if (typeof cells !== 'undefined') {
+  if (typeof image !== 'undefined') {
     // Initialize picture and canvas element.
     var picture = $('#picture');
     if (picture.length > 0) {
+      // create canvas
       var canvas = $('<canvas>',{'id':'cellmask'});
       picture.after(canvas);
-      adjustCanvasPosition(picture, canvas);
+      
+      adjustCanvasPosition(picture, image, canvas);
       $(window).load(function() {
-        adjustCanvasPosition(picture, canvas);
+        adjustCanvasPosition(picture, image, canvas);
       });
-      var canvasCellmask = canvas.get(0);
-      canvasCellmask.width = picture.width();
-      canvasCellmask.height = picture.height();
-      var ctxCellmask = canvasCellmask.getContext('2d');
-      ctxCellmask.clearRect(0, 0, picture.width(), picture.height());
     
       // Render all cell masks.
-      renderAllCells(canvasCellmask, ctxCellmask);
+      renderAllCells(canvas, image);
       
       var currentCell;
       
@@ -145,17 +149,53 @@ $(function () {
         var offset = canvas.offset();
         var x = e.pageX - offset.left;
         var y = e.pageY - offset.top;
-        var cell = getNearestCell(x,y);
+        var cell = getNearestCell(x, y, image.cells);
         if (currentCell) {
           // Re-render last chosen cell in standard color.
-          renderSingleCell(currentCell, ctxCellmask, false);
+          renderSingleCell(canvas, currentCell, false);
         }
         if (distance(x, y, cell.center_x, cell.center_y) < 25) {    
           // Render new cell in special color.
-          renderSingleCell(cell, ctxCellmask, true);  
+          renderSingleCell(canvas, cell, true);  
           // Update last chosen cell.
           currentCell = cell;
         }
+      });
+      
+      var show_cellmasks = $('#show_cellmasks');
+      show_cellmasks.click(function () {
+        if (show_cellmasks.is(':checked')) {
+          canvas.show();
+        } else {
+          canvas.hide();
+        }
+      });
+      
+      var picture_selector = $('#picture_id');
+      picture_selector.change(function () {
+        picture.attr('src', picture_selector.val());
+      });
+      
+      var image_selector = $('#image_id');
+      image_selector.change(function () {
+        $.ajax({
+          dataType: 'json',
+          url: '/images/' + image_selector.val(),
+          success: function(data) {
+            image = data;
+            renderAllCells(canvas, image);
+            $('#image_title_ord').html(image.ord);
+            var old_picture_ord = picture_selector.prop('selectedIndex');
+            picture_selector.html('');
+            $.each(image.pictures, function(index, p) {
+              var value = '/experiments/' + p.filename;
+              var display = p.filename.split('/')[0];
+              picture_selector.append('<option value="' + value + '">' + display + '</option>');
+            });
+            picture_selector.prop('selectedIndex', old_picture_ord);
+            picture.attr('src', picture_selector.val());
+          }
+        });
       });
     }
   }

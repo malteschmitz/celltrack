@@ -1,14 +1,20 @@
-<h2>Image <%=h @image.ord %> of experiment "<%=h @image.experiment.name %>"</h2>
+<h2>Image <span id="image_title_ord"><%=h @image.ord %></span> of experiment &ldquo;<%=h @image.experiment.name %>&rdquo;</h2>
 
-<%= form_tag(goto_images_url, :method => :get, :id => 'image_selector_form') do %>
-  <%= select_tag 'id', options_for_select(@image.experiment.images.collect {|i| ["Image #{i.ord}", i.id]}, @image.id) %>
-  <%= submit_tag 'Go', :name => nil %>
+<%= form_tag(nil, :id => 'main_form') do %>
+  <%= label_tag 'image_id', 'Image' %>
+  <%= select_tag 'image_id', options_for_select(@image.experiment.images.collect {|i| ["Image #{i.ord}", i.id]}, @image.id) %>
+  |
+  <%= check_box_tag 'show_cellmasks', '1', true %>
+  <%= label_tag 'show_cellmasks', 'Show Cellmasks' %>
+  |
+  <%= label_tag 'picture_id', 'Picture' %>
+  <%= select_tag 'picture_id', options_for_select(@image.pictures.collect {|p| [p.filename.split('/').first, '/experiments/' + p.filename]}, @image.pictures.first.id) %>
 <% end %>
 
 <p><%=image_tag '/experiments/' + @image.pictures.first.filename, :id => 'picture', :width => @image.width, :height => @image.height %></p>
 
 <script>
-  var cells = <%=@image.cells.to_json.html_safe %>;
+  var image = <%=@image.to_json.html_safe %>;
 </script>
 
 <p><%=link_to 'Back to experiment', experiment_url(@image.experiment.id) %></p>
