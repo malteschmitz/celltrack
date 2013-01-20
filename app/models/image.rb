@@ -36,6 +36,6 @@ class Image < ActiveRecord::Base
   attr_accessible :experiment, :filename, :ord
   
   def as_json(options={})
-    super(options.merge(:methods => [:cells]))
+    super(options.merge(:methods => [:cells, :pictures]))
   end
 end
