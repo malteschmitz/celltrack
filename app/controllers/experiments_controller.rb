@@ -21,6 +21,7 @@ class ExperimentsController < ApplicationController
   def create
     #create new experiment object
     @experiment = Experiment.new(params[:experiment])
+    @experiment.valid?
     
     upload_file = params[:upload_file]
     import_file = params[:import_file]
@@ -30,12 +31,18 @@ class ExperimentsController < ApplicationController
     elsif not import_file.blank?
       path = import_file
     else
-      @experiment.errors[:base] << 'no file for import selected'
-    end    
+      @experiment.errors[:base] << 'Neither a file nor folder containing the data selected'
+    end
+
+    picture_paths = params[:picture_paths]
+    
+    if picture_paths.blank?
+      @experiment.errors[:base] << 'No folder containing the pictures selected'
+    end
 
     if @experiment.errors.empty? and @experiment.save
       flash[:notice] = "Experiment “#{@experiment.name}” was successfully created."
-      ExperimentParser.parseCellExperiment(@experiment, path, params[:picture_paths])
+      ExperimentParser.parseCellExperiment(@experiment, path, picture_paths)
     end
     respond_with(@experiment)
   end

@@ -34,6 +34,8 @@ class Experiment < ActiveRecord::Base
   has_many :pictures
 
   attr_accessible :description, :name
+
+  validates :name, :presence => true
   
   before_destroy do |record|
     # delete cells, images, trees and pictures without any callbacks
