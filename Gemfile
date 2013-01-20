@@ -34,6 +34,10 @@ group :development do
   gem 'annotate', ">=2.5.0"
 end
 
+# Use background tasks
+gem 'delayed_job_active_record'
+gem 'daemons'
+
 # To use ActiveModel has_secure_password
 # gem 'bcrypt-ruby', '~> 3.0.0'
 

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130110233719) do
+ActiveRecord::Schema.define(:version => 20130120221248) do
 
   create_table "cells", :force => true do |t|
     t.integer  "image_id"
@@ -31,6 +31,22 @@ ActiveRecord::Schema.define(:version => 20130110233719) do
   add_index "cells", ["experiment_id"], :name => "index_cells_on_experiment_id"
   add_index "cells", ["image_id"], :name => "index_cells_on_image_id"
   add_index "cells", ["path_id"], :name => "index_cells_on_path_id"
+
+  create_table "delayed_jobs", :force => true do |t|
+    t.integer  "priority",   :default => 0
+    t.integer  "attempts",   :default => 0
+    t.text     "handler"
+    t.text     "last_error"
+    t.datetime "run_at"
+    t.datetime "locked_at"
+    t.datetime "failed_at"
+    t.string   "locked_by"
+    t.string   "queue"
+    t.datetime "created_at",                :null => false
+    t.datetime "updated_at",                :null => false
+  end
+
+  add_index "delayed_jobs", ["priority", "run_at"], :name => "delayed_jobs_priority"
 
   create_table "experiments", :force => true do |t|
     t.string   "name"
