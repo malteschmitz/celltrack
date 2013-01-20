@@ -13,7 +13,7 @@
         <td><%=h e.name %></td>
         <td><%=link_to 'Show', e %></td>
         <td><%=link_to 'Rename', edit_experiment_path(e) %></td>
-        <td><%=link_to 'Delete', e, :method => :delete, :data => { :confirm => "Do you really want to delete experiment “#{e.name}”?" } %></td>
+        <td><%=link_to 'Delete', e, :method => :delete, :data => { :confirm => "Deleting an experiment removes all its data from the database. This may take some time. Do you really want to delete experiment “#{e.name}”?" } %></td>
       </tr>
     <% end %>
   </tbody>
