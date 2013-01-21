@@ -42,7 +42,12 @@ class ExperimentsController < ApplicationController
 
     if @experiment.errors.empty? and @experiment.save
       flash[:notice] = "Experiment “#{@experiment.name}” was successfully created."
-      ExperimentParser.parseCellExperiment(@experiment, path, picture_paths)
+      if params[:delayed_job]
+        parser = ExperimentParser.delay
+      else
+        parser = ExperimentParser
+      end
+      parser.parseCellExperiment(@experiment, path, picture_paths)
     end
     respond_with(@experiment)
   end

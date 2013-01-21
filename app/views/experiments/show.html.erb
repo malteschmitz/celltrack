@@ -9,9 +9,26 @@
 <%= link_to 'Edit', edit_experiment_path(@experiment) %> |
 <%= link_to 'Back', experiments_path %>
 
+<% if @experiment.import_done? %>
+
 <h3>Images</h3>
 
 <%= form_tag(goto_images_url, :method => :get, :id => 'image_selector_form') do %>
   <%= select_tag 'id', options_for_select(@experiment.images.collect {|i| ["Image #{i.ord}", i.id]}) %>
   <%= submit_tag 'Go', :name => nil %>
+<% end %>
+
+<% else %>
+
+<h3>Importing</h3>
+
+<script>
+  var experiment_id = <%=h @experiment.id %>;
+</script>
+
+<p>The experiment is currently being imported. This may take a wile, please be patient.</p>
+
+<p id="progress"><%= @experiment.import_progress %></p>
+<div id="progress_bar"><div style="width:<%=h @experiment.import_progress_percent %>%"></div></div>
+
 <% end %>

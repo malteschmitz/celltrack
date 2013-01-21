@@ -34,6 +34,10 @@
     <%= label_tag 'picture_paths[]', 'Select the folders containing the pictures (present on the server in the public/experiments directory) (Press Ctrl or Shift to select multiple directories.)' %><br />
     <%= select_tag 'picture_paths[]', options_for_select(@picture_paths.map{ |x| [x,x] }), :size => 5, :multiple => :true %>
   </div>
+  <div class="field">
+    <%= check_box_tag 'delayed_job', 1, true %>
+    <%= label_tag 'delayed_job', 'Run import as background task' %>
+  </div>
   <div class="actions">
     <%= f.submit %>
   </div>
