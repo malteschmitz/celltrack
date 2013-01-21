@@ -44,13 +44,17 @@ class ExperimentParser
     pictures = picture_paths.map do |p|
       Dir.entries(PICTURE_ROOT.join(p)).sort.map { |q| File.join(p, q) }
     end
+    @experiment.import_progress = "#{@images.length} / #{files.count-2}"
+    @experiment.save!
     files.each_with_index do |filename, i| 
       file_path = pathToCellmasks.join(filename)
       if File.file?(file_path)
-        puts file_path
+        puts filename
         file = File.open(pathToCellmasks.join(filename), "r")
         parseCellmask(file, pictures.map{ |p| p[i] }.compact)
         file.close
+        @experiment.import_progress = "#{@images.length} / #{files.count-2}"
+        @experiment.save!
       end
     end
     
@@ -80,6 +84,11 @@ class ExperimentParser
     
     # run post processing and import trees
     findRootPaths
+    
+    # finish import
+    @experiment.import_progress = nil
+    @experiment.import_done = true
+    @experiment.save!
   end
     
   # Parses a file as cellmask of the experiment

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130120221248) do
+ActiveRecord::Schema.define(:version => 20130120224156) do
 
   create_table "cells", :force => true do |t|
     t.integer  "image_id"
@@ -51,8 +51,10 @@ ActiveRecord::Schema.define(:version => 20130120221248) do
   create_table "experiments", :force => true do |t|
     t.string   "name"
     t.text     "description"
-    t.datetime "created_at",  :null => false
-    t.datetime "updated_at",  :null => false
+    t.datetime "created_at",      :null => false
+    t.datetime "updated_at",      :null => false
+    t.string   "import_progress"
+    t.boolean  "import_done"
   end
 
   create_table "images", :force => true do |t|
