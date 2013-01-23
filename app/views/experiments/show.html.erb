@@ -26,7 +26,7 @@
   var experiment_id = <%=h @experiment.id %>;
 </script>
 
-<p>The experiment is currently being imported. This may take a wile, please be patient.</p>
+<p>The experiment is currently being imported. This may take a while, please be patient.</p>
 
 <p id="progress"><%= @experiment.import_progress %></p>
 <div id="progress_bar"><div style="width:<%=h @experiment.import_progress_percent %>%"></div></div>

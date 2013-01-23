@@ -26,10 +26,10 @@ class ExperimentsController < ApplicationController
     upload_file = params[:upload_file]
     import_file = params[:import_file]
     
-    if not upload_file.blank?
-      path = upload_file.tempfile
-    elsif not import_file.blank?
+    if not import_file.blank?
       path = import_file
+    elsif not upload_file.blank?
+      path = upload_file.tempfile
     else
       @experiment.errors[:base] << 'Neither a file nor folder containing the data selected'
     end

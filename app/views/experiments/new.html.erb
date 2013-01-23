@@ -1,6 +1,6 @@
 <h1>Import a new experiment</h1>
 
-<%= form_for(@experiment) do |f| %>
+<%= form_for(@experiment, :html => {:enctype => 'multipart/form-data'}) do |f| %>
   <% if @experiment.errors.any? %>
     <div id="error_explanation">
       <h2><%= pluralize(@experiment.errors.count, "error") %> prohibited this experiment from being created:</h2>
