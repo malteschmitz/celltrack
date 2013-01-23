@@ -20,8 +20,12 @@
 # trees[1]: paths(1,2,3)  1 child {2,3}
 # tress[2]: paths(4,5,6)  4 child {5,6}
 
-experiment = Experiment.create(:name => 'Test',
+experiment = Experiment.new(:name => 'Test',
   :description => 'This experiment is used to test the db schema.')
+# assume experiment import is ready
+experiment.import_progress = ''
+experiment.import_done = true
+experiment.save!
   
 images = Image.create([
   {:experiment => experiment, :ord => 1},
