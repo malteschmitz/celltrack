@@ -29,7 +29,7 @@ class ExperimentsController < ApplicationController
     if not import_file.blank?
       path = import_file
     elsif not upload_file.blank?
-      path = upload_file.tempfile
+      path = upload_file.tempfile.path
     else
       @experiment.errors[:base] << 'Neither a file nor folder containing the data selected'
     end
