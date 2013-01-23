@@ -4,7 +4,7 @@ class ExperimentParser
     # nothing in here
   end
 
-  # Parse a directory (specified by path) as an experiment
+  # Parse a directory or zip file (specified by path) as an experiment
   def initialize(experiment, path, picture_paths)
     @experiment = experiment
     
@@ -64,6 +64,7 @@ class ExperimentParser
     @experiment.save!
   end
   
+  # import from directory
   def parseFromDirectory(path, pictures)
     # Find cellmasks and pictures directory
     pathToCellmasks = IMPORT_ROOT.join(path, 'cellmasks')
@@ -92,8 +93,33 @@ class ExperimentParser
     adjacencyListFile.close
   end
   
+  # import from zip file
   def parseFromZipFile(path, pictures)
-    # TODO
+    Zip::ZipFile.open(path) do |zf|
+      pathToCellmasks = "cellmasks"
+      
+      files = zf.dir.entries(pathToCellmasks).sort
+      
+      @experiment.import_progress = "#{@images.length} / #{files.count}"
+      @experiment.save!
+      
+      files.each_with_index do |filename, i|
+        file_path = pathToCellmasks + "/" + filename
+        
+        puts filename
+        file = zf.file.open(file_path)
+        parseCellmask(file, pictures.map{ |p| p[i] }.compact)
+        file.close
+        
+        @experiment.import_progress = "#{@images.length} / #{files.count}"
+        @experiment.save!
+      end
+      
+      pathToAdjacencyList = "statusflags/adjacencyList"
+      adjacencyListFile = zf.file.open(pathToAdjacencyList)
+      parseAdjacencyList(adjacencyListFile)
+      adjacencyListFile.close
+    end
   end
     
   # Parses a file as cellmask of the experiment
