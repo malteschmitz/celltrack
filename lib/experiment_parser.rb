@@ -31,10 +31,13 @@ class ExperimentParser
     end
     
     # Does the path specify a zip file?
-    if File.file?(path)
+    if File.file?(path) # check if path contains absolute file name
       parseFromZipFile(path, pictures)
-    else
-      parseFromDirectory(path, pictures)
+    elsif File.file?(IMPORT_ROOT.join(path)) # check if path contains
+                                             # relative file name
+      parseFromZipFile(IMPORT_ROOT.join(path), pictures)
+    else # assume path contains relative directory name
+      parseFromDirectory(IMPORT_ROOT.join(path), pictures)
     end
     
     # compute information of images
@@ -67,7 +70,7 @@ class ExperimentParser
   # import from directory
   def parseFromDirectory(path, pictures)
     # Find cellmasks and pictures directory
-    pathToCellmasks = IMPORT_ROOT.join(path, 'cellmasks')
+    pathToCellmasks = path.join('cellmasks')
     
     # For each cellmask file, call parseCellmask method
     files = Dir.entries(pathToCellmasks).sort
@@ -87,7 +90,7 @@ class ExperimentParser
     end
     
     # Find adjacencyList in statusflags and import paths
-    pathToAdjacencyList = IMPORT_ROOT.join(path, 'statusflags', 'adjacencyList')
+    pathToAdjacencyList = path.join('statusflags', 'adjacencyList')
     adjacencyListFile = File.open(pathToAdjacencyList, "r")
     parseAdjacencyList(adjacencyListFile)
     adjacencyListFile.close
