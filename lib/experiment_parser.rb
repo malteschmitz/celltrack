@@ -7,19 +7,6 @@ class ExperimentParser
   # Parse a directory (specified by path) as an experiment
   def initialize(experiment, path, picture_paths)
     @experiment = experiment
-
-    if File.file?(path)
-      # TODO handle zip file for import
-      # Zip::ZipFile::open(uploaded_file.tempfile) do |zf|
-      #   p zf.select {|f| f.directory?}
-      #   p zf.dir.entries('.') # => ["cellmasks", "genealogic-trees", "statusflags"]
-      #   p zf.dir.entries('cellmasks') # => ["refdataA_txt", ...]
-      #   p zf.dir.entries('statusflags') # => ["adjacencyList", "beginning", "border_begin", "border_end", "coupled", "ending", "lost_begin", "lost_end", "mitoses"]
-      # end
-    end
-    
-    # Find cellmasks and pictures directory
-    pathToCellmasks = IMPORT_ROOT.join(path, 'cellmasks')
     
     # maps import path numbers to database path ids
     @paths = {}
@@ -39,23 +26,15 @@ class ExperimentParser
     # list of trees
     @trees = []
     
-    # For each cellmask file, call parseCellmask method
-    files = Dir.entries(pathToCellmasks).sort
     pictures = picture_paths.map do |p|
       Dir.entries(PICTURE_ROOT.join(p)).sort.map { |q| File.join(p, q) }
     end
-    @experiment.import_progress = "#{@images.length} / #{files.count-2}"
-    @experiment.save!
-    files.each_with_index do |filename, i| 
-      file_path = pathToCellmasks.join(filename)
-      if File.file?(file_path)
-        puts filename
-        file = File.open(pathToCellmasks.join(filename), "r")
-        parseCellmask(file, pictures.map{ |p| p[i] }.compact)
-        file.close
-        @experiment.import_progress = "#{@images.length} / #{files.count-2}"
-        @experiment.save!
-      end
+    
+    # Does the path specify a zip file?
+    if File.file?(path)
+      parseFromZipFile(path, pictures)
+    else
+      parseFromDirectory(path, pictures)
     end
     
     # compute information of images
@@ -76,12 +55,6 @@ class ExperimentParser
     Picture.import [:id, :filename, :image_id, :experiment_id],
       picture_array, :validate => false
     
-    # Find adjacencyList in statusflags and import paths
-    pathToAdjacencyList = IMPORT_ROOT.join(path, 'statusflags', 'adjacencyList')
-    adjacencyListFile = File.open(pathToAdjacencyList, "r")
-    parseAdjacencyList(adjacencyListFile)
-    adjacencyListFile.close
-    
     # run post processing and import trees
     findRootPaths
     
@@ -89,6 +62,38 @@ class ExperimentParser
     @experiment.import_progress = nil
     @experiment.import_done = true
     @experiment.save!
+  end
+  
+  def parseFromDirectory(path, pictures)
+    # Find cellmasks and pictures directory
+    pathToCellmasks = IMPORT_ROOT.join(path, 'cellmasks')
+    
+    # For each cellmask file, call parseCellmask method
+    files = Dir.entries(pathToCellmasks).sort
+    
+    @experiment.import_progress = "#{@images.length} / #{files.count-2}"
+    @experiment.save!
+    files.each_with_index do |filename, i| 
+      file_path = pathToCellmasks.join(filename)
+      if File.file?(file_path)
+        puts filename
+        file = File.open(pathToCellmasks.join(filename), "r")
+        parseCellmask(file, pictures.map{ |p| p[i] }.compact)
+        file.close
+        @experiment.import_progress = "#{@images.length} / #{files.count-2}"
+        @experiment.save!
+      end
+    end
+    
+    # Find adjacencyList in statusflags and import paths
+    pathToAdjacencyList = IMPORT_ROOT.join(path, 'statusflags', 'adjacencyList')
+    adjacencyListFile = File.open(pathToAdjacencyList, "r")
+    parseAdjacencyList(adjacencyListFile)
+    adjacencyListFile.close
+  end
+  
+  def parseFromZipFile(path, pictures)
+    # TODO
   end
     
   # Parses a file as cellmask of the experiment
