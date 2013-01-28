@@ -29,15 +29,14 @@ class ExperimentParser
     pictures = picture_paths.map do |p|
       Dir.entries(PICTURE_ROOT.join(p)).sort.map { |q| File.join(p, q) }
     end
+
+    path = IMPORT_ROOT.join(path)
     
     # Does the path specify a zip file?
-    if File.file?(path) # check if path contains absolute file name
+    if File.file?(path)
       parseFromZipFile(path, pictures)
-    elsif File.file?(IMPORT_ROOT.join(path)) # check if path contains
-                                             # relative file name
-      parseFromZipFile(IMPORT_ROOT.join(path), pictures)
-    else # assume path contains relative directory name
-      parseFromDirectory(IMPORT_ROOT.join(path), pictures)
+    else
+      parseFromDirectory(path, pictures)
     end
     
     # compute information of images

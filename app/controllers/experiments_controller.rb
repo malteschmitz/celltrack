@@ -19,18 +19,13 @@ class ExperimentsController < ApplicationController
   end
   
   def create
-    #create new experiment object
+    # create new experiment object
     @experiment = Experiment.new(params[:experiment])
+    # validate experiment explicitly
     @experiment.valid?
     
-    upload_file = params[:upload_file]
-    import_file = params[:import_file]
-    
-    if not import_file.blank?
-      path = import_file
-    elsif not upload_file.blank?
-      path = upload_file.tempfile.path
-    else
+    path = import_path
+    unless path
       @experiment.errors[:base] << 'Neither a file nor folder containing the data selected'
     end
 
@@ -69,6 +64,25 @@ class ExperimentsController < ApplicationController
   end
   
   private
+
+  def import_path  
+    if not params[:import_file].blank?
+      params[:import_file]
+    elsif not params[:upload_file].blank?
+      upload_file = params[:upload_file]
+      org = upload_file.original_filename
+      ext = File.extname(org)
+      base = File.basename(org, ext)
+      file = org
+      i = 0
+      while File.exists?(IMPORT_ROOT.join(file))
+        i += 1        
+        file = base + '_' + i.to_s + ext
+      end
+      FileUtils.cp upload_file.tempfile, IMPORT_ROOT.join(file)
+      file
+    end
+  end
   
   def compute_paths
     @import_files = Dir.entries(IMPORT_ROOT).select do |path|
