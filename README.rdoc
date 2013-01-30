@@ -1,7 +1,7 @@
 Introduction
 ============
 
-`celltrack` is a [Ruby on Rails](http://rubyonrails.org) project for displaying the results of celltracking experiments. It is used in context of the experiments described [in this PLOS ONE paper](https://sslgate.uni-luebeck.de/article/,DanaInfo=www.plosone.org+info%3Adoi%2F10.1371%2Fjournal.pone.0027315).
+`celltrack` is a [Ruby on Rails](http://rubyonrails.org) project for displaying the results of celltracking experiments. It is used in context of the experiments described [in this PLOS ONE paper](http://www.plosone.org/article/info%3Adoi%2F10.1371%2Fjournal.pone.0027315).
 
 
 Installation
