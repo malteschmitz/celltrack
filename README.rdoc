@@ -1,261 +1,147 @@
-== Welcome to Rails
+Introduction
+============
 
-Rails is a web-application framework that includes everything needed to create
-database-backed web applications according to the Model-View-Control pattern.
-
-This pattern splits the view (also called the presentation) into "dumb"
-templates that are primarily responsible for inserting pre-built data in between
-HTML tags. The model contains the "smart" domain objects (such as Account,
-Product, Person, Post) that holds all the business logic and knows how to
-persist themselves to a database. The controller handles the incoming requests
-(such as Save New Account, Update Product, Show Post) by manipulating the model
-and directing data to the view.
-
-In Rails, the model is handled by what's called an object-relational mapping
-layer entitled Active Record. This layer allows you to present the data from
-database rows as objects and embellish these data objects with business logic
-methods. You can read more about Active Record in
-link:files/vendor/rails/activerecord/README.html.
-
-The controller and view are handled by the Action Pack, which handles both
-layers by its two parts: Action View and Action Controller. These two layers
-are bundled in a single package due to their heavy interdependence. This is
-unlike the relationship between the Active Record and Action Pack that is much
-more separate. Each of these packages can be used independently outside of
-Rails. You can read more about Action Pack in
-link:files/vendor/rails/actionpack/README.html.
+`celltrack` is a [Ruby on Rails](http://rubyonrails.org) project for displaying the results of celltracking experiments. It is used in context of the experiments described [in this PLOS ONE paper](https://sslgate.uni-luebeck.de/article/,DanaInfo=www.plosone.org+info%3Adoi%2F10.1371%2Fjournal.pone.0027315).
 
 
-== Getting Started
+Installation
+============
 
-1. At the command prompt, create a new Rails application:
-       <tt>rails new myapp</tt> (where <tt>myapp</tt> is the application name)
-
-2. Change directory to <tt>myapp</tt> and start the web server:
-       <tt>cd myapp; rails server</tt> (run with --help for options)
-
-3. Go to http://localhost:3000/ and you'll see:
-       "Welcome aboard: You're riding Ruby on Rails!"
-
-4. Follow the guidelines to start developing your application. You can find
-the following resources handy:
-
-* The Getting Started Guide: http://guides.rubyonrails.org/getting_started.html
-* Ruby on Rails Tutorial Book: http://www.railstutorial.org/
+- Install [Ruby](www.ruby-lang.org) and [Ruby on Rails](http://rubyonrails.org).
+- Install [Node.js](http://nodejs.org) or any other Rails compatible JavaScript interpreter.
+- If not present, install and start a database server, e.g. [MySQL](http://dev.mysql.com) or [PostgreSQL](http://www.postgresql.org).
+- If not present, install [Git](http://git-scm.com).
+- If not present, create an [GitHub](https://github.com) account, if you want to upload changes back to the repository.
+- Clone [this repository](https://github.com/malteschmitz/celltrack).
+- Copy one of the `celltrack/config/database.yml.[sqlite|mysql|postgres]` files to `celltrack/config/database.yml` and adjust the configuration according to the used database.
+- Within a CLI, navigate to the `celltrack` folder.
+- Execute `bundle install` to load all current gems (the first time and after every change in the repository).
+- Execute `bundle exec rake db:setup` to initialise the development database.
+- Execute `bundle exec rake db:setup RAILS_ENV=production` to initialise the production database.
 
 
-== Debugging Rails
+Running
+=======
 
-Sometimes your application goes wrong. Fortunately there are a lot of tools that
-will help you debug it and get it back on the rails.
+In development mode
+-------------------
 
-First area to check is the application log files. Have "tail -f" commands
-running on the server.log and development.log. Rails will automatically display
-debugging and runtime information to these files. Debugging info will also be
-shown in the browser on requests from 127.0.0.1.
+- Execute `bundle exec rake assets:clean` to delete possible existing compiled assets.
+- Execute `rails server` to run the server.
+- In another CLI, execute `RAILS_ENV=production script/delayed_job start` or `bundle exec rake jobs:work` to run a worker for background processes ([delayed_job](https://github.com/collectiveidea/delayed_job)).
 
-You can also log your own messages directly into the log file from your code
-using the Ruby logger class from inside your controllers. Example:
+In production mode
+-----------------
 
-  class WeblogController < ActionController::Base
-    def destroy
-      @weblog = Weblog.find(params[:id])
-      @weblog.destroy
-      logger.info("#{Time.now} Destroyed Weblog ID ##{@weblog.id}!")
-    end
-  end
-
-The result will be a message in your log file along the lines of:
-
-  Mon Oct 08 14:22:29 +1000 2007 Destroyed Weblog ID #1!
-
-More information on how to use the logger is at http://www.ruby-doc.org/core/
-
-Also, Ruby documentation can be found at http://www.ruby-lang.org/. There are
-several books available online as well:
-
-* Programming Ruby: http://www.ruby-doc.org/docs/ProgrammingRuby/ (Pickaxe)
-* Learn to Program: http://pine.fm/LearnToProgram/ (a beginners guide)
-
-These two books will bring you up to speed on the Ruby language and also on
-programming in general.
+- Execute `bundle exec rake assets:precompile` to compile assets.
+- Execute `rails server -e production` to run the server.
+- In anoter CLI, execute `RAILS_ENV=production script/delayed_job start` or `bundle exec rake jobs:work RAILS_ENV=production` to run a worker for background processes ([delayed_job](https://github.com/collectiveidea/delayed_job)).
 
 
-== Debugger
+Data import
+===========
 
-Debugger support is available through the debugger command when you start your
-Mongrel or WEBrick server with --debugger. This means that you can break out of
-execution at any point in the code, investigate and change the model, and then,
-resume execution! You need to install ruby-debug to run the server in debugging
-mode. With gems, use <tt>sudo gem install ruby-debug</tt>. Example:
+Via data manually put on the server
+-----------------------------------
 
-  class WeblogController < ActionController::Base
-    def index
-      @posts = Post.all
-      debugger
-    end
-  end
+- In the `celltrack/import` folder, create a new folder with sub-folders `cellmasks` and `statusflags` and fill these folders with the corresponding data.
+- In the `celltrack/public` folder, create a new folder and fill this folder with the corresponding microscopy photographs. 
+- In your browser, access `http://localhost:3000` and click the `New Experiment` button.
+- Choose a name and a description for the experiment.
+- In both list boxes, the before created folders should be displayed and can be chosen now.
+- Check `Run import as background task`, if the import job should be started as a background process. Therefore, the worker must have been started before. Possible error messages are displayed in the output windows of the worker instead of the browser.
+- Click `Create Experiment` to start the import job. Depending on the data volume, this can take a while. Watch the CLI.
+- After finishing, the single photographs with the marked cells can be chosen and watched.
 
-So the controller will accept the action, run the first line, then present you
-with a IRB prompt in the server window. Here you can do things like:
+Via data uploaded as ZIP file
+-----------------------------
 
-  >> @posts.inspect
-  => "[#<Post:0x14a6be8
-          @attributes={"title"=>nil, "body"=>nil, "id"=>"1"}>,
-       #<Post:0x14a6620
-          @attributes={"title"=>"Rails", "body"=>"Only ten..", "id"=>"2"}>]"
-  >> @posts.first.title = "hello from a debugger"
-  => "hello from a debugger"
-
-...and even better, you can examine how your runtime objects actually work:
-
-  >> f = @posts.first
-  => #<Post:0x13630c4 @attributes={"title"=>nil, "body"=>nil, "id"=>"1"}>
-  >> f.
-  Display all 152 possibilities? (y or n)
-
-Finally, when you're ready to resume execution, you can enter "cont".
+- Prepare a ZIP file containing the two folders `cellmasks` and `statusflags` and fill these folders with the corresponding data.
+- In the `celltrack/public` folder, create a new folder and fill this folder with the corresponding microscopy photographs. 
+- In your browser, access `http://localhost:3000` and click the `New Experiment` button.
+- Choose a name and a description for the experiment.
+- In the lower list box, the before created folder containing the photographs should be displayed and can be chosen now.
+- Check `Run import as background task`, if the import job should be started as a background process. Therefore, the worker must have been started before. Possible error messages are displayed in the output windows of the worker instead of the browser.
+- Click `Create Experiment` to start the import job. Depending on the data volume, this can take a while. Watch the CLI.
+- After finishing, the single photographs with the marked cells can be chosen and watched.
 
 
-== Console
+Delete background processes
+===========================
 
-The console is a Ruby shell, which allows you to interact with your
-application's domain model. Here you'll have all parts of the application
-configured, just like it is when the application is running. You can inspect
-domain models, change values, and save to the database. Starting the script
-without arguments will launch it in the development environment.
-
-To start the console, run <tt>rails console</tt> from the application
-directory.
-
-Options:
-
-* Passing the <tt>-s, --sandbox</tt> argument will rollback any modifications
-  made to the database.
-* Passing an environment name as an argument will load the corresponding
-  environment. Example: <tt>rails console production</tt>.
-
-To reload your controllers and models after launching the console run
-<tt>reload!</tt>
-
-More information about irb can be found at:
-link:http://www.rubycentral.org/pickaxe/irb.html
+If the import fails in the background process, the worker will try to re-start this process after a while. To delete such a (and all other), you can execute `bundle exec rake jobs:clear` or `bundle exec rake jobs:clear RAILS_ENV=production`.
 
 
-== dbconsole
+Overview of *important files*
+=============================
 
-You can go to the command line of your database directly through <tt>rails
-dbconsole</tt>. You would be connected to the database with the credentials
-defined in database.yml. Starting the script without arguments will connect you
-to the development database. Passing an argument will connect you to a different
-database, like <tt>rails dbconsole production</tt>. Currently works for MySQL,
-PostgreSQL and SQLite 3.
-
-== Description of Contents
-
-The default directory structure of a generated Ruby on Rails application:
-
-  |-- app
-  |   |-- assets
-  |       |-- images
-  |       |-- javascripts
-  |       `-- stylesheets
-  |   |-- controllers
-  |   |-- helpers
-  |   |-- mailers
-  |   |-- models
-  |   `-- views
-  |       `-- layouts
-  |-- config
-  |   |-- environments
-  |   |-- initializers
-  |   `-- locales
-  |-- db
-  |-- doc
-  |-- lib
-  |   `-- tasks
-  |-- log
-  |-- public
-  |-- script
-  |-- test
-  |   |-- fixtures
-  |   |-- functional
-  |   |-- integration
-  |   |-- performance
-  |   `-- unit
-  |-- tmp
-  |   |-- cache
-  |   |-- pids
-  |   |-- sessions
-  |   `-- sockets
-  `-- vendor
-      |-- assets
-          `-- stylesheets
-      `-- plugins
-
-app
-  Holds all the code that's specific to this particular application.
-
-app/assets
-  Contains subdirectories for images, stylesheets, and JavaScript files.
-
-app/controllers
-  Holds controllers that should be named like weblogs_controller.rb for
-  automated URL mapping. All controllers should descend from
-  ApplicationController which itself descends from ActionController::Base.
-
-app/models
-  Holds models that should be named like post.rb. Models descend from
-  ActiveRecord::Base by default.
-
-app/views
-  Holds the template files for the view that should be named like
-  weblogs/index.html.erb for the WeblogsController#index action. All views use
-  eRuby syntax by default.
-
-app/views/layouts
-  Holds the template files for layouts to be used with views. This models the
-  common header/footer method of wrapping views. In your views, define a layout
-  using the <tt>layout :default</tt> and create a file named default.html.erb.
-  Inside default.html.erb, call <% yield %> to render the view using this
-  layout.
-
-app/helpers
-  Holds view helpers that should be named like weblogs_helper.rb. These are
-  generated for you automatically when using generators for controllers.
-  Helpers can be used to wrap functionality for your views into methods.
-
-config
-  Configuration files for the Rails environment, the routing map, the database,
-  and other dependencies.
-
-db
-  Contains the database schema in schema.rb. db/migrate contains all the
-  sequence of Migrations for your schema.
-
-doc
-  This directory is where your application documentation will be stored when
-  generated using <tt>rake doc:app</tt>
-
-lib
-  Application specific libraries. Basically, any kind of custom code that
-  doesn't belong under controllers, models, or helpers. This directory is in
-  the load path.
-
-public
-  The directory available for the web server. Also contains the dispatchers and the
-  default HTML files. This should be set as the DOCUMENT_ROOT of your web
-  server.
-
-script
-  Helper scripts for automation and generation.
-
-test
-  Unit and functional tests along with fixtures. When using the rails generate
-  command, template test files will be generated for you and placed in this
-  directory.
-
-vendor
-  External libraries that the application depends on. Also includes the plugins
-  subdirectory. If the app has frozen rails, those gems also go here, under
-  vendor/rails/. This directory is in the load path.
+    celltrack
+    |
+    +-- app
+    |   |
+    |   +-- assets
+    |   |   |
+    |   |   +-- images.js                                // JavaScript for rendering and marking cells
+    |   |   +-- experiments.js                           // JavaScript for showing the progress during the import
+    |   |
+    |   +-- controllers
+    |   |   |
+    |   |   +-- application_controller.rb                // Base class for Controllers
+    |   |   +-- cells_controller.rb                      // Controller for the Cells resource
+    |   |   +-- experiments_controller.rb                // Controller for the Experiment resource
+    |   |   +-- iamges_controller.rb                     // Controller for the Image resource
+    |   |
+    |   +-- models
+    |   |   |
+    |   |   +-- cell.rb                                  // (Database) model of a cell
+    |   |   +-- experiment.rb                            // (Database) model of a experiment
+    |   |   +-- image.rb                                 // (Database) model of a picture
+    |   |   +-- path.rb                                  // (Database) model of a path
+    |   |   +-- picture.rb                               // (Database) model of a photograph
+    |   |   +-- tree.rb                                  // (Database) model of a tree
+    |   |
+    |   +-- views
+    |       |
+    |       +-- experiments
+    |       |   |
+    |       |   +-- edit.html.erb                        // HTML: Edit an existing experiment
+    |       |   +-- index.html.erb                       // HTML: Overview over all experiments
+    |       |   +-- new.html.erb                         // HTML: Create a new experiment
+    |       |   +-- show.html.erb                        // HTML: Show details (pictures) of an existing experiment
+    |       |
+    |       +-- images
+    |       |   |
+    |       |   +-- show.html.erb                        // HTML: Show details (cells) of an existing picture 
+    |       |
+    |       +-- layouts
+    |           |
+    |           +-- application.html.erb                 // Layout for all HTMLs
+    |
+    +-- config
+    |   |
+    |   +-- environment.rb                               // Configuration: paths to picture and import folders
+    |   +-- routes.rb                                    // Configuration: URL forwarding
+    |
+    +-- db
+    |   |
+    |   +-- migrate
+    |   |   |
+    |   |   +-- {migrations}                             // Scripts for creating the database tables
+    |   |
+    |   +-- schema.rb                                    // Complete database model (auto-generated)
+    |   +-- seeds.rb                                     // manually created minimal example
+    |
+    +-- import
+    |   |
+    |   +-- {Experiment}                                 // Sub-folders {Experiment} with sub-sub-folders cellmasks and statusflags
+    |
+    +-- lib
+    |   |
+    |   +-- bit_vector.rb                                // Auxiliary class for bit vectors
+    |   +-- experiment_parser.rb                         // Main import class
+    |
+    +-- public
+        |
+        +-- experiments
+            |
+            +-- {Experiment}                             // Sub-folders {Experiment} for microscopy photographs
